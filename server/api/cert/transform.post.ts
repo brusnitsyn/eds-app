@@ -1,11 +1,12 @@
 import crypto from "crypto";
 import {writeFile} from "fs/promises";
-import {format, formatRFC3339 } from "date-fns"
+import {format, formatRFC3339, getTime } from "date-fns"
 import { X509 } from "jsrsasign"
+import {MultiPartData} from "h3";
 export default defineEventHandler(async (event) => {
-    const formData = await readMultipartFormData(event)
+    const formData = await readMultipartFormData(event) as MultiPartData[]
 
-    const file = formData.find((item) => item.name === 'file')
+    const file = formData.find((item) => item.name === 'file') as MultiPartData
 
     const certPem = new crypto.X509Certificate(file.data).toJSON()
     const certCrypto = new crypto.X509Certificate(file.data)
@@ -13,10 +14,12 @@ export default defineEventHandler(async (event) => {
     const cert = new X509()
     cert.readCertPEM(certPem)
 
-    const serialNumber = cert.getSerialNumberHex()
-    const validFrom = formatRFC3339(certCrypto.validFrom)
-    const validTo = formatRFC3339(certCrypto.validTo)
+    const serialNumber = (cert.getSerialNumberHex() as string).toUpperCase()
+    const validFrom = getTime(Date.parse(certCrypto.validFrom))
+    const validTo = getTime(Date.parse(certCrypto.validTo))
     const subjectRaw = certCrypto.subject
+
+    const certObject = { create: { serialNumber, validFrom, validTo } }
 
     let subjectArray = subjectRaw.split('\n')
 
@@ -38,9 +41,7 @@ export default defineEventHandler(async (event) => {
     subject.jobTitle = subjectObject.title
 
     return {
-        serialNumber,
-        validFrom,
-        validTo,
-        subject,
+        cert: certObject,
+        ...subject,
     }
 })

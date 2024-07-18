@@ -1,9 +1,11 @@
 <script setup lang="ts">
-
+definePageMeta({
+  middleware: 'auth'
+})
 </script>
 
 <template>
-  $END$
+
 </template>
 
 <style scoped>

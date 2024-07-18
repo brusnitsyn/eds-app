@@ -11,7 +11,7 @@ export default eventHandler(async (event) => {
         throw createError({ statusCode: 403, statusMessage: 'Unauthorized, hint: try `hunter2` as password' })
     }
 
-    const expiresIn = 15
+    const expiresIn = Math.floor(Math.random() * (1000000000000000 - 1 + 1)) + 1
     const refreshToken = Math.floor(Math.random() * (1000000000000000 - 1 + 1)) + 1
     const { login } = result.data
     const user = await event.context.prisma.user.findUnique({
@@ -20,7 +20,7 @@ export default eventHandler(async (event) => {
         },
     })
 
-    const accessToken = sign({ ...user, scope: [user.role] }, SECRET, { expiresIn })
+    const accessToken = sign({ ...user, scope: [user.rule] }, SECRET, { expiresIn })
     refreshTokens[refreshToken] = {
         accessToken,
         user

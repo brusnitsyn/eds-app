@@ -1,39 +1,51 @@
+import { formatRFC3339 } from 'date-fns'
+
 export default defineEventHandler(async (event) => {
-    const prisma = event.context.prisma
-    const rawData = await readBody(event)
+  const prisma = event.context.prisma
+  const rawData = await readBody(event)
 
-    console.log(rawData)
+  console.log(rawData)
 
-    const fullName = `${rawData.lastName} ${rawData.firstName} ${rawData.surName}`
-    const data = {...rawData, fullName }
+  const fullName = `${rawData.lastName} ${rawData.firstName} ${rawData.surName}`
 
-    const certData = {
-        update: {
-            where: {
-                id: data.cert.id
-            },
-            data: { ...data.cert }
-        }
+  const cert = {
+    validTo: formatRFC3339(rawData.cert.validTo),
+    validFrom: formatRFC3339(rawData.cert.validFrom),
+  }
+
+  const personDob = {
+    dob: rawData.dob ? formatRFC3339(rawData.dob) : null
+  }
+
+  const data = { ...rawData, ...personDob, fullName }
+
+  const certData = {
+    update: {
+      where: {
+        id: data.cert.id
+      },
+      data: { ...data.cert, ...cert }
     }
+  }
 
-    const personData = {
-        ...data,
-        cert: certData
+  const personData = {
+    ...data,
+    cert: certData
+  }
+
+  delete data.cert
+
+  const person = await prisma.person.update({
+    where: {
+      id: data.id
+    },
+    data: personData,
+    include: {
+      cert: true
     }
+  })
 
-    delete data.cert
-
-    const person = await prisma.person.update({
-        where: {
-            id: data.id
-        },
-        data: personData,
-        include: {
-            cert: true
-        }
-    })
-
-    return {
-        person
-    }
+  return {
+    person
+  }
 })

@@ -1,0 +1,61 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["prismaSchemaFolder"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int     @id @default(autoincrement())
+  email    String?
+  login    String  @unique
+  name     String?
+  password String
+  rule     Rule    @default(user)
+}
+
+model Person {
+  id         Int        @id @default(autoincrement())
+  fullName   String
+  lastName   String
+  firstName  String
+  surName    String
+  inn        String
+  snils      String
+  jobTitle   String
+  dob        DateTime?
+  tel        String?
+  sex        GenderType
+  divisionId Int?
+  cert       Cert?
+  division   Division?  @relation(fields: [divisionId], references: [id])
+}
+
+model Cert {
+  id           Int      @id @default(autoincrement())
+  serialNumber String
+  validFrom    DateTime
+  validTo      DateTime
+  personId     Int      @unique
+  person       Person   @relation(fields: [personId], references: [id])
+}
+
+model Division {
+  id     Int      @id @default(autoincrement())
+  title  String
+  Person Person[]
+}
+
+enum GenderType {
+  slava
+  liza
+}
+
+enum Rule {
+  user
+  admin
+  sadmin
+}
