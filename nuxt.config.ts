@@ -7,6 +7,18 @@ export default defineNuxtConfig({
     }
   },
 
+  runtimeConfig: {
+    public: {
+      api: 'http://eds-server.test/api'
+    }
+  },
+
+  nitro: {
+    routeRules: {
+      "/s/**": { proxy: 'http://eds-server.test/api/**' },
+    }
+  },
+
   modules: [
     '@nuxtjs/tailwindcss',
     '@bg-dev/nuxt-naiveui',
@@ -18,16 +30,24 @@ export default defineNuxtConfig({
   },
 
   auth: {
+    globalAppMiddleware: false,
+    baseURL: 'http://eds-server.test/api/auth',
     provider: {
       type: 'local',
       endpoints: {
+        signIn: { path: '/login' },
         getSession: { path: '/user' }
       },
       pages: {
         login: '/auth'
       },
       token: {
-        signInResponseTokenPointer: '/token/accessToken'
+        signInResponseTokenPointer: '/token',
+        type: 'Bearer',
+        cookieName: 'auth.token',
+        headerName: 'Authorization',
+        maxAgeInSeconds: 1800,
+        sameSiteAttribute: 'lax',
       }
     },
   },

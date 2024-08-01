@@ -14,12 +14,12 @@ export default defineEventHandler(async (event) => {
     const cert = new X509()
     cert.readCertPEM(certPem)
 
-    const serialNumber = (cert.getSerialNumberHex() as string).toUpperCase()
-    const validFrom = getTime(Date.parse(certCrypto.validFrom))
-    const validTo = getTime(Date.parse(certCrypto.validTo))
+    const serial_number = (cert.getSerialNumberHex() as string).toUpperCase()
+    const valid_from = getTime(Date.parse(certCrypto.validFrom))
+    const valid_to = getTime(Date.parse(certCrypto.validTo))
     const subjectRaw = certCrypto.subject
 
-    const certObject = { create: { serialNumber, validFrom, validTo } }
+    const certObject = { serial_number, valid_from, valid_to }
 
     let subjectArray = subjectRaw.split('\n')
 
@@ -32,13 +32,13 @@ export default defineEventHandler(async (event) => {
     let subject = {}
 
     const fullName = subjectObject.CN.split(' ')
-    subject.lastName = fullName[0]
-    subject.firstName = fullName[1]
-    subject.surName = fullName[2]
+    subject.last_name = fullName[0]
+    subject.first_name = fullName[1]
+    subject.middle_name = fullName[2]
 
     subject.inn = subjectObject.INN
     subject.snils = subjectObject.SNILS
-    subject.jobTitle = subjectObject.title
+    subject.job_title = subjectObject.title
 
     return {
         cert: certObject,

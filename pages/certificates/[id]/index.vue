@@ -5,14 +5,23 @@ const { $client } = useNuxtApp()
 
 const id = Number.parseInt(useRoute().params.id as string)
 
-const userModel = await $client.getUser.useQuery({ id })
+// const userModel = await $client.getUser.useQuery({ id })
+
+const {data:staff} = await useAsyncData(`staff-id`, () => $fetch(`/s/staff/${id}`))
+
+const {data: divisions} = await useAsyncData('divisions', () => $fetch(`/s/division`))
+
+const formatedDivisions = divisions.value.map(item => ({
+  ...item,
+  value: item.id
+}))
 
 const formatDate = 'dd.MM.yyyy'
 
 const disableForm = ref(false)
 
 const data = ref({
-  ...userModel.data.value
+  ...staff.value
 })
 
 function handleFinish({ file, event }: {
@@ -28,7 +37,7 @@ function handleFinish({ file, event }: {
 }
 
 async function onSubmit() {
-  const { data: responseData } = await useFetch('/api/person/edit', {
+  const { data: responseData } = await useFetch(`/s/staff/edit`, {
     method: 'post',
     body: data.value
   })
@@ -44,7 +53,7 @@ definePageMeta({
   <div>
     <div class="flex flex-row justify-between items-center pb-5">
       <h1 class="text-2xl font-bold">
-        {{ userModel?.data.value?.fullName }}
+        {{ data.full_name }}
       </h1>
       <n-form-item label="Редактирование" label-placement="left" :show-feedback="false">
         <n-switch v-model:value="disableForm" />
@@ -68,24 +77,24 @@ definePageMeta({
     </n-upload-dragger>
   </n-upload>
 
-  <ValidateCert v-else :cert="{ validTo: data.cert.validTo!, hasValid: data.cert?.hasValid, hasRequestNew: data.cert?.hasRequestNew }" />
+  <ValidateCert v-else :cert="{ validTo: data.cert.valid_to!, hasValid: data.cert?.has_valid, hasRequestNew: data.cert?.has_request_new }" />
 
   <n-form ref="formRef" :label-width="80" :model="data" class="pt-4" :disabled="!disableForm">
-    <n-form-item label="Серийный номер сертификата" path="cert.serialNumber">
-      <n-input v-model:value="data.cert.serialNumber" placeholder="Серийный номер сертификата" disabled />
+    <n-form-item label="Серийный номер сертификата" path="cert.serial_number">
+      <n-input v-model:value="data.cert.serial_number" placeholder="Серийный номер сертификата" disabled />
     </n-form-item>
 
     <div class="grid grid-cols-2 gap-4 w-full">
-      <n-form-item label="Дата выпуска" path="cert.validFrom">
+      <n-form-item label="Дата выпуска" path="cert.valid_from">
         <n-date-picker
-          v-model:value="data.cert.validFrom" type="datetime" placeholder="Дата выпуска" class="w-full"
+          v-model:value="data.cert.valid_from" type="datetime" placeholder="Дата выпуска" class="w-full"
           :format="formatDate"
           clearable disabled
         />
       </n-form-item>
-      <n-form-item label="Дата окончания" path="cert.validTo">
+      <n-form-item label="Дата окончания" path="cert.valid_to">
         <n-date-picker
-          v-model:value="data.cert.validTo" type="datetime" placeholder="Дата окончания" class="w-full"
+          v-model:value="data.cert.valid_to" type="datetime" placeholder="Дата окончания" class="w-full"
           :format="formatDate"
           clearable disabled
         />
@@ -102,29 +111,34 @@ definePageMeta({
     </div>
 
     <div class="grid grid-cols-2 gap-4 w-full">
-      <n-form-item label="Должность" path="jobTitle">
-        <n-input v-model:value="data.jobTitle" placeholder="Должность" clearable />
+      <n-form-item label="Должность" path="job_title">
+        <n-input v-model:value="data.job_title" placeholder="Должность" clearable />
       </n-form-item>
-      <n-form-item label="Структурное подразделение" path="jobTitle">
-        <n-input v-model:value="data.jobTitle" placeholder="Структурное подразделение" clearable />
-      </n-form-item>
-    </div>
-
-    <div class="grid grid-cols-3 gap-4 w-full">
-      <n-form-item label="Фамилия" path="lastName">
-        <n-input v-model:value="data.lastName" placeholder="Фамилия" clearable />
-      </n-form-item>
-      <n-form-item label="Имя" path="firstName">
-        <n-input v-model:value="data.firstName" placeholder="Имя" clearable />
-      </n-form-item>
-      <n-form-item label="Отчество" path="surName">
-        <n-input v-model:value="data.surName" placeholder="Отчество" clearable />
+      <n-form-item label="Структурное подразделение" path="division_id">
+        <n-select
+            v-model:value="data.division_id"
+            filterable
+            placeholder="Структурное подразделение"
+            :options="formatedDivisions"
+          />
       </n-form-item>
     </div>
 
     <div class="grid grid-cols-3 gap-4 w-full">
-      <n-form-item label="Пол" path="sex">
-        <n-radio-group v-model:value="data.sex">
+      <n-form-item label="Фамилия" path="last_name">
+        <n-input v-model:value="data.last_name" placeholder="Фамилия" clearable />
+      </n-form-item>
+      <n-form-item label="Имя" path="first_name">
+        <n-input v-model:value="data.first_name" placeholder="Имя" clearable />
+      </n-form-item>
+      <n-form-item label="Отчество" path="middle_name">
+        <n-input v-model:value="data.middle_name" placeholder="Отчество" clearable />
+      </n-form-item>
+    </div>
+
+    <div class="grid grid-cols-3 gap-4 w-full">
+      <n-form-item label="Пол" path="gender">
+        <n-radio-group v-model:value="data.gender">
           <n-radio-button value="slava" label="Мужской" />
           <n-radio-button value="liza" label="Женский" />
         </n-radio-group>

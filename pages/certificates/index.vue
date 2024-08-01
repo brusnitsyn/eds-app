@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { definePageMeta } from '#imports'
 
-const { data } = await useAsyncData('person', () => $fetch('/api/person/all'))
+const { data } = await useAsyncData('staff', () => $fetch('/s/staff'))
 
 interface responseData {
   persons: (Person[])[]
@@ -22,7 +22,7 @@ const columns = [
   },
   {
     title: 'ФИО',
-    key: 'fullName'
+    key: 'full_name'
   },
   {
     title: 'СНИЛС',
@@ -30,7 +30,7 @@ const columns = [
   },
   {
     title: 'Должность',
-    key: 'jobTitle',
+    key: 'job_title',
     ellipsis: {
       tooltip: true
     }
