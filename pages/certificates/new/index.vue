@@ -6,9 +6,9 @@ definePageMeta({
   middleware: 'auth'
 })
 
-const {data: divisions} = await useAsyncData('divisions', () => $fetch(`/s/division`))
+const {data: divisions} = await useAsyncData('divisions', () => $fetch(`/api/division`))
 
-const formatedDivisions = divisions.value.map(item => ({
+const formatedDivisions = divisions.value.divisions.map(item => ({
   ...item,
   value: item.id
 }))
@@ -43,7 +43,7 @@ function handleFinish({ file, event }: {
 }
 
 async function onSubmit() {
-  const { data: responseData } = await useFetch(`/s/staff`, {
+  const { data: responseData } = await useFetch(`/api/staff`, {
     method: 'post',
     body: data.value
   })
@@ -64,7 +64,8 @@ async function onSubmit() {
 
     <n-upload
       directory-dnd
-      action="/api/cert/transform"
+      name="certificate"
+      action="/api/certificate/read"
       :show-file-list="false"
       @finish="handleFinish"
     >

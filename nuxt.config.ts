@@ -9,15 +9,13 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      api: 'http://eds-server.test/api'
+      proxyApiUrl: ''
     }
   },
 
-  nitro: {
-    routeRules: {
-      "/s/**": { proxy: 'http://eds-server.test/api/**' },
-    }
-  },
+  // routeRules: {
+  //   "/api/**": { proxy: `${process.env.PROXY_API_URL}**`, cors: true, }
+  // },
 
   modules: [
     '@nuxtjs/tailwindcss',
@@ -31,16 +29,11 @@ export default defineNuxtConfig({
 
   auth: {
     globalAppMiddleware: false,
-    baseURL: 'http://eds-server.test/api/auth',
     provider: {
-      type: 'local',
-      endpoints: {
-        signIn: { path: '/login' },
-        getSession: { path: '/user' }
-      },
-      pages: {
-        login: '/auth'
-      },
+      type: 'authjs',
+      trustHost: false,
+      defaultProvider: 'credentials',
+      addDefaultCallbackUrl: true,
       token: {
         signInResponseTokenPointer: '/token',
         type: 'Bearer',

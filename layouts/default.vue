@@ -112,7 +112,10 @@ const menuOptions = [
   {
     label: 'Подразделения',
     key: 'divisions',
-    icon: IconAffiliate
+    icon: IconAffiliate,
+    to: {
+      name: 'divisions'
+    }
   }
 ]
 

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { definePageMeta } from '#imports'
 
-const { data } = await useAsyncData('staff', () => $fetch('/s/staff'))
+const { data } = await useAsyncData('staff', () => $fetch('/api/staff'))
 
 interface responseData {
   persons: (Person[])[]
@@ -57,8 +57,8 @@ definePageMeta({
 
 <template>
   <div>
-    <div class="flex flex-row justify-between items-center">
-      <h1 class="text-2xl font-bold pb-5">
+    <div class="flex flex-row justify-between items-center pb-5">
+      <h1 class="text-2xl font-bold">
         Сертификаты
       </h1>
       <n-button type="primary" @click="handleAddClick">

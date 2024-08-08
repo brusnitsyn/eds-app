@@ -27,7 +27,7 @@ const validateForm = (e: MouseEvent) => {
   formRef.value?.validate(
       async (errors: Array<FormValidationError> | undefined) => {
         if (!errors) {
-          await signIn({login: model.value.login, password: model.value.password}, { external: true, callbackUrl: '/certificates' })
+          signIn('credentials', {callbackUrl: '/', login: model.value.login, password: model.value.password})
         } else {
           /// TODO: add message send
         }
@@ -36,11 +36,8 @@ const validateForm = (e: MouseEvent) => {
 }
 
 definePageMeta({
-  middleware: "auth",
-  auth: {
-    navigateAuthenticatedTo: "/"
-  },
   layout: "centered",
+  auth: { middleware: "guest-only", unauthenticatedOnly: true, navigateAuthenticatedTo: '/'}
 })
 </script>
 

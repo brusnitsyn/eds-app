@@ -7,11 +7,11 @@ const id = Number.parseInt(useRoute().params.id as string)
 
 // const userModel = await $client.getUser.useQuery({ id })
 
-const {data:staff} = await useAsyncData(`staff-id`, () => $fetch(`/s/staff/${id}`))
+const { data: staff } = await useAsyncData(`staff-id`, () => $fetch(`/api/staff/${id}`))
 
-const {data: divisions} = await useAsyncData('divisions', () => $fetch(`/s/division`))
+const { data: divisions } = await useAsyncData('divisions', () => $fetch(`/api/division`))
 
-const formatedDivisions = divisions.value.map(item => ({
+const formatedDivisions = divisions.value.divisions.map(item => ({
   ...item,
   value: item.id
 }))
@@ -61,7 +61,8 @@ definePageMeta({
     </div>
   </div>
 
-  <n-upload v-if="disableForm" directory-dnd action="/api/cert/transform" :show-file-list="false" @finish="handleFinish">
+  <n-upload v-if="disableForm" name="certificate" directory-dnd action="/api/certificate/read" :show-file-list="false"
+    @finish="handleFinish">
     <n-upload-dragger>
       <div style="margin-bottom: 12px">
         <n-icon size="48" :depth="3">
@@ -77,7 +78,8 @@ definePageMeta({
     </n-upload-dragger>
   </n-upload>
 
-  <ValidateCert v-else :cert="{ validTo: data.cert.valid_to!, hasValid: data.cert?.has_valid, hasRequestNew: data.cert?.has_request_new }" />
+  <ValidateCert v-else
+    :cert="{ validTo: data.cert.valid_to!, hasValid: data.cert?.has_valid, hasRequestNew: data.cert?.has_request_new }" />
 
   <n-form ref="formRef" :label-width="80" :model="data" class="pt-4" :disabled="!disableForm">
     <n-form-item label="Серийный номер сертификата" path="cert.serial_number">
@@ -86,18 +88,12 @@ definePageMeta({
 
     <div class="grid grid-cols-2 gap-4 w-full">
       <n-form-item label="Дата выпуска" path="cert.valid_from">
-        <n-date-picker
-          v-model:value="data.cert.valid_from" type="datetime" placeholder="Дата выпуска" class="w-full"
-          :format="formatDate"
-          clearable disabled
-        />
+        <n-date-picker v-model:value="data.cert.valid_from" type="datetime" placeholder="Дата выпуска" class="w-full"
+          :format="formatDate" clearable disabled />
       </n-form-item>
       <n-form-item label="Дата окончания" path="cert.valid_to">
-        <n-date-picker
-          v-model:value="data.cert.valid_to" type="datetime" placeholder="Дата окончания" class="w-full"
-          :format="formatDate"
-          clearable disabled
-        />
+        <n-date-picker v-model:value="data.cert.valid_to" type="datetime" placeholder="Дата окончания" class="w-full"
+          :format="formatDate" clearable disabled />
       </n-form-item>
     </div>
 
@@ -115,12 +111,8 @@ definePageMeta({
         <n-input v-model:value="data.job_title" placeholder="Должность" clearable />
       </n-form-item>
       <n-form-item label="Структурное подразделение" path="division_id">
-        <n-select
-            v-model:value="data.division_id"
-            filterable
-            placeholder="Структурное подразделение"
-            :options="formatedDivisions"
-          />
+        <n-select v-model:value="data.division_id" filterable placeholder="Структурное подразделение"
+          :options="formatedDivisions" />
       </n-form-item>
     </div>
 
@@ -144,11 +136,8 @@ definePageMeta({
         </n-radio-group>
       </n-form-item>
       <n-form-item label="Дата рождения" path="dob">
-        <n-date-picker
-          v-model:value="data.dob" :actions="null" type="date" placeholder="Дата рождения"
-          :format="formatDate"
-          class="w-full" clearable
-        />
+        <n-date-picker v-model:value="data.dob" :actions="null" type="date" placeholder="Дата рождения"
+          :format="formatDate" class="w-full" clearable />
       </n-form-item>
       <n-form-item label="Номер телефона" path="tel">
         <n-input v-model:value="data.tel" placeholder="Номер телефона" clearable />
