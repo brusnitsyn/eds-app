@@ -18,10 +18,10 @@ export default defineNuxtConfig({
   // },
 
   sanctum: {
-    mode: 'cookie',
+    mode: 'token',
     baseUrl: process.env.PROXY_API_URL,
     endpoints: {
-      login: '/login',
+      login: '/api/auth/login',
       user: '/api/user',
     },
     redirect: {
