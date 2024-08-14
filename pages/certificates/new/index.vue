@@ -3,17 +3,21 @@ import { IconUpload } from '@tabler/icons-vue'
 import type { UploadCustomRequestOptions, UploadFileInfo } from 'naive-ui'
 
 definePageMeta({
-  middleware: 'auth'
+  middleware: 'sanctum:auth'
 })
 
-const {data: divisions} = await useAsyncData('divisions', () => $fetch(`/api/division`))
+const client = useSanctumClient()
+const config = useRuntimeConfig()
+const message = useMessage()
+
+const { data: divisions } = await useAsyncData('division', () => client('/api/division'))
 
 const formatedDivisions = divisions.value.divisions.map(item => ({
   ...item,
   value: item.id
 }))
 
-const data = ref({
+const model = ref({
   cert: {
     serial_number: '',
     valid_from: null,
@@ -39,15 +43,42 @@ function handleFinish({ file, event }: {
 
   const responseData = JSON.parse(event?.target.response)
 
-  data.value = { ...data.value, ...responseData }
+  model.value = { ...model.value, ...responseData }
+}
+
+async function customRequest({
+  file,
+  data,
+}: UploadCustomRequestOptions) {
+  const formData = new FormData()
+  if (data) {
+    Object.keys(data).forEach((key) => {
+      formData.append(
+        key,
+        data[key as keyof UploadCustomRequestOptions['data']]
+      )
+    })
+  }
+  formData.append('certificate', file.file as File)
+  const response = await client('/api/certificate/read', {
+    method: 'POST',
+    body: formData
+  })
+  model.value = { ...model.value, ...response }
 }
 
 async function onSubmit() {
-  const { data: responseData } = await useFetch(`/api/staff`, {
+  const response = await client(`/api/staff`, {
     method: 'post',
-    body: data.value
+    body: model.value
   })
-  if (responseData.value) { await useRouter().go(-1) }
+  console.log(response)
+  if (response.status === 'ok') {
+    message.success(response.message, {
+      keepAliveOnHover: true
+    })
+    await useRouter().go(-1)
+  }
 }
 </script>
 
@@ -64,10 +95,8 @@ async function onSubmit() {
 
     <n-upload
       directory-dnd
-      name="certificate"
-      action="/api/certificate/read"
       :show-file-list="false"
-      @finish="handleFinish"
+      :custom-request="customRequest"
     >
       <n-upload-dragger>
         <div style="margin-bottom: 12px">
@@ -87,38 +116,38 @@ async function onSubmit() {
     <n-form
       ref="formRef"
       :label-width="80"
-      :model="data"
+      :model="model"
       class="pt-4"
     >
       <n-form-item label="Серийный номер сертификата" path="cert.serial_number">
-        <n-input v-model:value="data.cert.serial_number" placeholder="Серийный номер сертификата" disabled />
+        <n-input v-model:value="model.cert.serial_number" placeholder="Серийный номер сертификата" disabled />
       </n-form-item>
 
       <div class="grid grid-cols-2 gap-4 w-full">
         <n-form-item label="Дата выпуска" path="cert.valid_from">
-          <n-date-picker v-model:value="data.cert.valid_from" type="datetime" placeholder="Дата выпуска" class="w-full" clearable disabled />
+          <n-date-picker v-model:value="model.cert.valid_from" type="datetime" placeholder="Дата выпуска" class="w-full" clearable disabled />
         </n-form-item>
         <n-form-item label="Дата окончания" path="cert.valid_to">
-          <n-date-picker v-model:value="data.cert.valid_to" type="datetime" placeholder="Дата окончания" class="w-full" clearable disabled />
+          <n-date-picker v-model:value="model.cert.valid_to" type="datetime" placeholder="Дата окончания" class="w-full" clearable disabled />
         </n-form-item>
       </div>
 
       <div class="grid grid-cols-2 gap-4 w-full">
         <n-form-item label="СНИЛС" path="snils">
-          <n-input v-model:value="data.snils" placeholder="СНИЛС" clearable />
+          <n-input v-model:value="model.snils" placeholder="СНИЛС" clearable />
         </n-form-item>
         <n-form-item label="ИНН" path="inn">
-          <n-input v-model:value="data.inn" placeholder="ИНН" clearable />
+          <n-input v-model:value="model.inn" placeholder="ИНН" clearable />
         </n-form-item>
       </div>
 
       <div class="grid grid-cols-2 gap-4 w-full">
         <n-form-item label="Должность" path="job_title">
-          <n-input v-model:value="data.job_title" placeholder="Должность" clearable />
+          <n-input v-model:value="model.job_title" placeholder="Должность" clearable />
         </n-form-item>
         <n-form-item label="Структурное подразделение" path="division_id">
           <n-select
-            v-model:value="data.division_id"
+            v-model:value="model.division_id"
             filterable
             placeholder="Структурное подразделение"
             :options="formatedDivisions"
@@ -128,19 +157,19 @@ async function onSubmit() {
 
       <div class="grid grid-cols-3 gap-4 w-full">
         <n-form-item label="Фамилия" path="last_name">
-          <n-input v-model:value="data.last_name" placeholder="Фамилия" clearable />
+          <n-input v-model:value="model.last_name" placeholder="Фамилия" clearable />
         </n-form-item>
         <n-form-item label="Имя" path="first_name">
-          <n-input v-model:value="data.first_name" placeholder="Имя" clearable />
+          <n-input v-model:value="model.first_name" placeholder="Имя" clearable />
         </n-form-item>
         <n-form-item label="Отчество" path="middle_name">
-          <n-input v-model:value="data.middle_name" placeholder="Отчество" clearable />
+          <n-input v-model:value="model.middle_name" placeholder="Отчество" clearable />
         </n-form-item>
       </div>
 
       <div class="grid grid-cols-3 gap-4 w-full">
         <n-form-item label="Пол" path="gender">
-          <n-radio-group v-model:value="data.gender">
+          <n-radio-group v-model:value="model.gender">
             <n-radio-button
               value="slava"
               label="Мужской"
@@ -152,10 +181,10 @@ async function onSubmit() {
           </n-radio-group>
         </n-form-item>
         <n-form-item label="Дата рождения" path="dob">
-          <n-date-picker v-model:value="data.dob" :actions="null" type="date" placeholder="Дата рождения" class="w-full" clearable />
+          <n-date-picker v-model:value="model.dob" :actions="null" type="date" placeholder="Дата рождения" class="w-full" clearable />
         </n-form-item>
         <n-form-item label="Номер телефона" path="tel">
-          <n-input v-model:value="data.tel" placeholder="Номер телефона" clearable />
+          <n-input v-model:value="model.tel" placeholder="Номер телефона" clearable />
         </n-form-item>
       </div>
     </n-form>

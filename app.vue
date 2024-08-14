@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {ruRU, dateRuRU} from 'naive-ui'
+import { dateRuRU, ruRU } from 'naive-ui'
 
 const defaultLang = ruRU
 const defaultLangDate = dateRuRU
@@ -9,9 +9,14 @@ const defaultLangDate = dateRuRU
   <Html lang="ru">
     <Body>
       <naive-config :locale="defaultLang" :date-locale="defaultLangDate">
-        <NuxtLayout>
-          <NuxtPage />
-        </NuxtLayout>
+        <n-notification-provider>
+          <n-message-provider>
+            <NuxtLayout>
+              <NuxtPage />
+            </NuxtLayout>
+            <naive-notification />
+          </n-message-provider>
+        </n-notification-provider>
       </naive-config>
     </Body>
   </Html>

@@ -15,7 +15,7 @@ import {
 import { NuxtLink } from '#components'
 import { TOP_MENU_HEIGHT } from '~/constants'
 
-const { data } = useAuth()
+const data = {}
 
 function renderIcon(icon: Object) {
   return h(NIcon, null, { default: () => h(icon) })

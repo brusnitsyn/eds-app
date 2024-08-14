@@ -1,13 +1,10 @@
 <script setup lang="ts">
-
-const { data  } = useAuth()
-
-console.log(data )
-
+const client = useSanctumClient()
+const { data: divisions } = await useAsyncData('divisions', () => client('/api/division'))
 </script>
 
 <template>
-  <div>
-
-  </div>
+  <pre>
+    {{ divisions }}
+  </pre>
 </template>

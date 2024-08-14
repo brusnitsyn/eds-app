@@ -24,6 +24,7 @@
     "jsonwebtoken": "^9.0.2",
     "jsrsasign": "^11.1.0",
     "nuxt": "^3.12.2",
+    "nuxt-auth-sanctum": "^0.4.6",
     "superjson": "^2.2.1",
     "tailwind-merge": "^2.4.0",
     "trpc-nuxt": "^0.10.21",
@@ -35,7 +36,6 @@
     "@antfu/eslint-config": "^2.11.5",
     "@bg-dev/nuxt-naiveui": "1.0.0-edge.2",
     "@nuxtjs/tailwindcss": "^6.11.4",
-    "@sidebase/nuxt-auth": "^0.7.2",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^20.11.30",
     "eslint": "^8.57.0",
@@ -43,8 +43,5 @@
     "prisma": "^5.15.1",
     "typescript": "^5.5.2",
     "vue-tsc": "^2.0.7"
-  },
-  "peerDependencies": {
-    "next-auth": "^4.21.1"
   }
 }

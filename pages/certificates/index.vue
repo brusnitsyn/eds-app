@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { definePageMeta } from '#imports'
 
-const { data } = await useAsyncData('staff', () => $fetch('/api/staff'))
+const client = useSanctumClient()
+const { data } = await useAsyncData('staff', () => client('/api/staff'))
 
 interface responseData {
   persons: (Person[])[]
@@ -9,9 +10,10 @@ interface responseData {
 
 interface Person {
   id: number
-  fullName: string
+  full_name: string
   snils: string
-  jobTitle: string
+  job_title: string
+  cert_valid_to: int
 }
 
 const columns = [
@@ -27,6 +29,10 @@ const columns = [
   {
     title: 'СНИЛС',
     key: 'snils'
+  },
+  {
+    title: 'Действует до',
+    key: 'cert_valid_to'
   },
   {
     title: 'Должность',
@@ -51,7 +57,7 @@ function openEditPage(row) {
 }
 
 definePageMeta({
-  middleware: 'auth'
+  middleware: 'sanctum:auth'
 })
 </script>
 

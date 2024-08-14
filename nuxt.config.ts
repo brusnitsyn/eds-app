@@ -9,7 +9,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      proxyApiUrl: ''
+      proxyApiUrl: process.env.PROXY_API_URL
     }
   },
 
@@ -17,32 +17,30 @@ export default defineNuxtConfig({
   //   "/api/**": { proxy: `${process.env.PROXY_API_URL}**`, cors: true, }
   // },
 
+  sanctum: {
+    mode: 'cookie',
+    baseUrl: process.env.PROXY_API_URL,
+    endpoints: {
+      login: '/login',
+      user: '/api/user',
+    },
+    redirect: {
+      keepRequestedRoute: false,
+      onLogin: '/',
+      onLogout: '/',
+      onAuthOnly: '/auth',
+      onGuestOnly: '/',
+    },
+  },
+
   modules: [
     '@nuxtjs/tailwindcss',
     '@bg-dev/nuxt-naiveui',
-    '@sidebase/nuxt-auth',
+    'nuxt-auth-sanctum'
   ],
 
   devtools: {
     enabled: true
-  },
-
-  auth: {
-    globalAppMiddleware: false,
-    provider: {
-      type: 'authjs',
-      trustHost: false,
-      defaultProvider: 'credentials',
-      addDefaultCallbackUrl: true,
-      token: {
-        signInResponseTokenPointer: '/token',
-        type: 'Bearer',
-        cookieName: 'auth.token',
-        headerName: 'Authorization',
-        maxAgeInSeconds: 1800,
-        sameSiteAttribute: 'lax',
-      }
-    },
   },
 
   build: {
