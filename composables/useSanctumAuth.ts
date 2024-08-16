@@ -22,7 +22,6 @@ export function useSanctumAuth() {
     if (token) {
       console.log(`Сохранение токена: ${token}`)
       cookieToken.value = token
-      await refreshUser()
     }
 
     if (isAuthenticated.value === true) {
@@ -34,6 +33,7 @@ export function useSanctumAuth() {
     user,
     isAuthenticated,
     cookieToken,
+    refreshUser,
     login
   }
 }
