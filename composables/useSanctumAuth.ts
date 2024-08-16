@@ -24,7 +24,7 @@ export function useSanctumAuth() {
       cookieToken.value = token
     }
 
-    if (isAuthenticated.value === true) {
+    if (cookieToken.value) {
       return await navigateTo(config.redirect.onLogin, { replace: true })
     }
   }
