@@ -2,7 +2,7 @@ import { useSanctumConfig } from './useSanctumConfig'
 import { useSanctumFetch } from './useSanctumFetch'
 
 export function useSanctumAuth() {
-  const user = ref(null)
+  const user = useState<T | null>('user', () => null)
   const cookieToken = useCookie('token')
   const isAuthenticated = computed(() => user.value !== null)
   const config = useSanctumConfig()
@@ -22,9 +22,8 @@ export function useSanctumAuth() {
     if (token) {
       console.log(`Сохранение токена: ${token}`)
       cookieToken.value = token
+      await refreshUser()
     }
-
-    await refreshUser()
 
     if (isAuthenticated.value === true) {
       return await navigateTo(config.redirect.onLogin, { replace: true })

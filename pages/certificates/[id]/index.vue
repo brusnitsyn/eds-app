@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { IconUpload } from '@tabler/icons-vue'
 
-const client = useSanctumFetch()
 const config = useRuntimeConfig()
 const message = useMessage()
 
@@ -9,9 +8,9 @@ const id = Number.parseInt(useRoute().params.id as string)
 
 // const userModel = await $client.getUser.useQuery({ id })
 
-const { data: staff } = await useAsyncData(`staff-id`, () => client(`/api/staff/${id}`))
+const { data: staff } = await useAsyncData(`staff-id`, () => useSanctumFetch(`/api/staff/${id}`))
 
-const { data: divisions } = await useAsyncData('divisions', () => client(`/api/division`))
+const { data: divisions } = await useAsyncData('divisions', () => useSanctumFetch(`/api/division`))
 
 const formatedDivisions = divisions.value.divisions.map(item => ({
   ...item,

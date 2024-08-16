@@ -6,11 +6,10 @@ definePageMeta({
   middleware: 'sanctum-auth'
 })
 
-const client = useSanctumFetch()
 const config = useRuntimeConfig()
 const message = useMessage()
 
-const { data: divisions } = await useAsyncData('division', () => client('/api/division'))
+const { data: divisions } = await useAsyncData('division', () => useSanctumFetch('/api/division'))
 
 const formatedDivisions = divisions.value.divisions.map(item => ({
   ...item,
