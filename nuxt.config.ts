@@ -13,10 +13,6 @@ export default defineNuxtConfig({
     }
   },
 
-  // routeRules: {
-  //   "/api/**": { proxy: `${process.env.PROXY_API_URL}**`, cors: true, }
-  // },
-
   sanctum: {
     mode: 'token',
     baseUrl: process.env.PROXY_API_URL,
