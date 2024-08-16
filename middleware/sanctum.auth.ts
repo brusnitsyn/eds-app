@@ -1,7 +1,7 @@
 export default defineNuxtRouteMiddleware(async (to, from) => {
-  const token = useCookie('token')
+  const { isAuthenticated } = useSanctumAuth()
 
-  if (token.value) { return }
+  if (isAuthenticated.value === true) { return }
 
   return await navigateTo('/auth', { replace: true })
 })

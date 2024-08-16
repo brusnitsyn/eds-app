@@ -4,6 +4,7 @@ import { useSanctumFetch } from './useSanctumFetch'
 export function useSanctumAuth() {
   const user = ref(null)
   const cookieToken = useCookie('token')
+  const isAuthenticated = computed(() => user.value !== null)
   const config = useSanctumConfig()
 
   async function refreshUser() {
@@ -25,13 +26,15 @@ export function useSanctumAuth() {
 
     await refreshUser()
 
-    if (user.value) {
+    if (isAuthenticated.value === true) {
       return await navigateTo(config.redirect.onLogin, { replace: true })
     }
   }
 
   return {
     user,
+    isAuthenticated,
+    cookieToken,
     login
   }
 }
