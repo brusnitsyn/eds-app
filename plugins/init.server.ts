@@ -1,6 +1,6 @@
 import { useSanctumAuth } from '../composables/useSanctumAuth'
 
-export default defineNitroPlugin(async (nitroApp) => {
+export default defineNuxtPlugin(async (nitroApp) => {
   const { cookieToken, refreshUser } = useSanctumAuth()
-  if (cookieToken) { await refreshUser() }
+  if (cookieToken !== null) { await refreshUser() }
 })
