@@ -3,10 +3,10 @@ import { IconUpload } from '@tabler/icons-vue'
 import type { UploadCustomRequestOptions, UploadFileInfo } from 'naive-ui'
 
 definePageMeta({
-  middleware: 'sanctum:auth'
+  middleware: 'sanctum-auth'
 })
 
-const client = useSanctumClient()
+const client = useSanctumFetch()
 const config = useRuntimeConfig()
 const message = useMessage()
 

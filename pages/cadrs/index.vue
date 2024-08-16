@@ -1,11 +1,10 @@
 <script setup lang="ts">
 definePageMeta({
-  middleware: 'auth'
+  middleware: 'sanctum-auth'
 })
 </script>
 
 <template>
-
 </template>
 
 <style scoped>

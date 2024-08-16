@@ -3,7 +3,4 @@ const { data: divisions } = await useAsyncData('divisions', () => useSanctumFetc
 </script>
 
 <template>
-  <pre>
-    {{ divisions }}
-  </pre>
 </template>

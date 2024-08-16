@@ -41,7 +41,7 @@ function openEditPage(row) {
 }
 
 definePageMeta({
-  middleware: 'auth'
+  middleware: 'sanctum-auth'
 })
 </script>
 

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { IconUpload } from '@tabler/icons-vue'
 
-const client = useSanctumClient()
+const client = useSanctumFetch()
 const config = useRuntimeConfig()
 const message = useMessage()
 
@@ -61,7 +61,7 @@ async function onSubmit() {
 }
 
 definePageMeta({
-  middleware: 'sanctum:auth'
+  middleware: 'sanctum-auth'
 })
 </script>
 
