@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { definePageMeta } from '#imports'
 
-const { data } = await useAsyncData('staff', () => useSanctumFetch('/api/staff'))
+const { client } = useSanctumFetch()
+const { data } = await useAsyncData('staff', () => client('/api/staff'))
 
 interface responseData {
   persons: (Person[])[]

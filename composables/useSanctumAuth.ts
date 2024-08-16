@@ -4,16 +4,17 @@ import { useSanctumFetch } from './useSanctumFetch'
 export function useSanctumAuth() {
   const user = useState<T | null>('user', () => null)
   const cookieToken = useCookie('token')
-  const isAuthenticated = computed(() => user.value !== null)
+  const isAuthenticated = computed(() => cookieToken.value && cookieToken.value !== null)
   const config = useSanctumConfig()
+  const { client } = useSanctumFetch()
 
   async function refreshUser() {
-    user.value = await useSanctumFetch(config.endpoints.user)
+    user.value = await client(config.endpoints.user)
   }
 
   async function login(credentials: Record<string, any>) {
     console.log('Отправка response')
-    const { token } = await useSanctumFetch(config.endpoints.login, {
+    const { token } = await client(config.endpoints.login, {
       method: 'POST',
       body: credentials
     })

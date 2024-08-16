@@ -3,14 +3,15 @@ import { IconUpload } from '@tabler/icons-vue'
 
 const config = useRuntimeConfig()
 const message = useMessage()
+const { client } = useSanctumFetch()
 
 const id = Number.parseInt(useRoute().params.id as string)
 
 // const userModel = await $client.getUser.useQuery({ id })
 
-const { data: staff } = await useAsyncData(`staff-id`, () => useSanctumFetch(`/api/staff/${id}`))
+const { data: staff } = await useAsyncData(`staff-id`, () => client(`/api/staff/${id}`))
 
-const { data: divisions } = await useAsyncData('divisions', () => useSanctumFetch(`/api/division`))
+const { data: divisions } = await useAsyncData('divisions', () => client(`/api/division`))
 
 const formatedDivisions = divisions.value.divisions.map(item => ({
   ...item,
@@ -39,7 +40,7 @@ async function customRequest({
     })
   }
   formData.append('certificate', file.file as File)
-  const response = await useSanctumFetch('/api/certificate/read', {
+  const response = await client('/api/certificate/read', {
     method: 'POST',
     body: formData
   })
@@ -47,8 +48,8 @@ async function customRequest({
 }
 
 async function onSubmit() {
-  const response = await useSanctumFetch(`/api/staff/${id}`, {
-    method: 'post',
+  const response = await client(`/api/staff/${id}`, {
+    method: 'POST',
     body: model.value
   })
   if (response.status === 'ok') {

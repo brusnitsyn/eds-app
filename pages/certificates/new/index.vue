@@ -9,8 +9,9 @@ definePageMeta({
 
 const config = useRuntimeConfig()
 const message = useMessage()
+const { client } = useSanctumFetch()
 
-const { data: divisions } = await useAsyncData('division', () => useSanctumFetch('/api/division'))
+const { data: divisions } = await useAsyncData('division', () => client('/api/division'))
 
 const formatedDivisions = divisions.value.divisions.map(item => ({
   ...item,

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { definePageMeta } from '#imports'
 
-const { data } = await useSanctumFetch('/api/division', { server: true })
+const { client } = useSanctumFetch()
+const { data } = await useAsyncData('divisions', () => client('/api/division'))
 
 interface responseData {
   divisions: (Division[])[]
