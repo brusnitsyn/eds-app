@@ -9,7 +9,21 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      proxyApiUrl: process.env.PROXY_API_URL
+      proxyApiUrl: process.env.PROXY_API_URL,
+      sanctum: {
+        baseUrl: process.env.PROXY_API_URL,
+        endpoints: {
+          login: '/api/auth/login',
+          user: '/api/user',
+        },
+        redirect: {
+          keepRequestedRoute: false,
+          onLogin: '/',
+          onLogout: '/',
+          onAuthOnly: '/auth',
+          onGuestOnly: '/',
+        },
+      },
     }
   },
 
@@ -32,7 +46,6 @@ export default defineNuxtConfig({
   modules: [
     '@nuxtjs/tailwindcss',
     '@bg-dev/nuxt-naiveui',
-    'nuxt-auth-sanctum'
   ],
 
   devtools: {

@@ -1,6 +1,5 @@
 <script setup lang="ts">
-const client = useSanctumClient()
-const { data: divisions } = await useAsyncData('divisions', () => client('/api/division'))
+const { data: divisions } = await useAsyncData('divisions', () => useSanctumFetch('/api/division'))
 </script>
 
 <template>
