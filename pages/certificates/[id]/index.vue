@@ -39,7 +39,7 @@ async function customRequest({
     })
   }
   formData.append('certificate', file.file as File)
-  const response = await client('/api/certificate/read', {
+  const response = await useSanctumFetch('/api/certificate/read', {
     method: 'POST',
     body: formData
   })
@@ -47,7 +47,7 @@ async function customRequest({
 }
 
 async function onSubmit() {
-  const response = await client(`/api/staff/${id}`, {
+  const response = await useSanctumFetch(`/api/staff/${id}`, {
     method: 'post',
     body: model.value
   })

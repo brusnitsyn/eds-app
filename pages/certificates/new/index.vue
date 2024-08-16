@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { IconUpload } from '@tabler/icons-vue'
 import type { UploadCustomRequestOptions, UploadFileInfo } from 'naive-ui'
+import { useSanctumFetch } from '../../../composables/useSanctumFetch'
 
 definePageMeta({
   middleware: 'sanctum-auth'
@@ -59,7 +60,7 @@ async function customRequest({
     })
   }
   formData.append('certificate', file.file as File)
-  const response = await client('/api/certificate/read', {
+  const response = await useSanctumFetch('/api/certificate/read', {
     method: 'POST',
     body: formData
   })
@@ -67,7 +68,7 @@ async function customRequest({
 }
 
 async function onSubmit() {
-  const response = await client(`/api/staff`, {
+  const response = await useSanctumFetch(`/api/staff`, {
     method: 'post',
     body: model.value
   })
