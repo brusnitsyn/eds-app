@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { definePageMeta } from '#imports'
+import type {int} from "@es-joy/jsdoccomment";
 
 const { client } = useSanctumFetch()
 const { data } = await useAsyncData('staff', () => client('/api/staff'))
@@ -56,6 +57,28 @@ function openEditPage(row) {
   }
 }
 
+const addOptions = [
+  {
+    label: 'Пакет сертификатов',
+    key: 'add-multi',
+  },
+  {
+    label: 'Один сертификат',
+    key: 'add-single',
+  },
+]
+const hasOpenMultiAddDialog = ref(false)
+const handleSelect = (key: string | number) => {
+  switch (key) {
+    case 'add-multi':
+      hasOpenMultiAddDialog.value = true
+      break
+    case 'add-single':
+      useRouter().push({ name: 'certificates-new' })
+      break
+  }
+}
+
 definePageMeta({
   middleware: 'sanctum-auth'
 })
@@ -67,15 +90,18 @@ definePageMeta({
       <h1 class="text-2xl font-bold">
         Сертификаты
       </h1>
-      <n-button type="primary" @click="handleAddClick">
-        Добавить
-      </n-button>
+      <NDropdown :options="addOptions" @select="handleSelect">
+        <NButton type="primary">
+          Добавить
+        </NButton>
+      </NDropdown>
     </div>
     <n-data-table
       striped :max-height="500" :row-props="openEditPage" :columns="columns"
       :data="(data as responseData).persons" :bordered="true"
     />
   </div>
+  <ModalsAddManyCertificates :open="hasOpenMultiAddDialog" @update:open="value => hasOpenMultiAddDialog = value" />
 </template>
 
 <style scoped></style>
