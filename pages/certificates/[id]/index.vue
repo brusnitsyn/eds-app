@@ -44,7 +44,7 @@ async function customRequest({
     method: 'POST',
     body: formData
   })
-  model.value = { ...model.value, ...response }
+  model.value = response
 }
 
 async function onSubmit() {

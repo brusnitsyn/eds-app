@@ -1,28 +1,50 @@
 <script setup lang="ts">
-import type { UploadCustomRequestOptions } from "naive-ui";
+import type { UploadCustomRequestOptions, UploadFileInfo, UploadInst } from 'naive-ui'
 
-const { client } = useSanctumFetch()
-const props = defineProps<{ open: boolean }>()
+const props = defineProps<{ open: boolean, refresh: void }>()
 const emits = defineEmits('update:open')
+const { client } = useSanctumFetch()
+const isPackage = ref(0)
+const uploadRef = ref<UploadInst | null>(null)
+const fileListLength = ref(0)
+const loading = ref(false)
 
-const uploadArchive = async ({ file }: UploadCustomRequestOptions) => {
+async function uploadArchive({ file }: UploadCustomRequestOptions) {
+  loading.value = true
   const formData = new FormData()
-  formData.append(file.name, file.file as File)
+  formData.append('archive', file.file as File)
+  formData.append('is_package', isPackage.value)
 
   const response = await client('/api/certificate/upload', {
     method: 'POST',
     body: formData
   })
 
-  console.log(response)
+  if (response.status === 'ok') {
+    await props.refresh()
+    emits('update:open', false)
+  }
+  loading.value = false
+}
+
+function handleChangeUpload(data: { fileList: UploadFileInfo[] }) {
+  fileListLength.value = data.fileList.length
+}
+
+function handleClickUpload() {
+  uploadRef.value?.submit()
 }
 </script>
 
 <template>
-  <NModal :show="open" :mask-closable="false" preset="card" class="w-1/3" @update:show="value => emits('update:open', value)" title="Загрузка сертификатов">
+  <NModal :show="open" :mask-closable="false" preset="card" class="w-1/3" title="Загрузка сертификатов" @update:show="value => emits('update:open', value)">
     <NUpload
-        directory-dnd
-        :custom-request="customRequest"
+      ref="uploadRef"
+      :disabled="loading"
+      directory-dnd
+      :custom-request="uploadArchive"
+      :default-upload="false"
+      @change="handleChangeUpload"
     >
       <NUploadDragger>
         <div style="margin-bottom: 12px">
@@ -31,16 +53,19 @@ const uploadArchive = async ({ file }: UploadCustomRequestOptions) => {
         <NText style="font-size: 16px">
           Нажмите или перетащите архив в эту область, чтобы загрузить
         </NText>
-<!--        <NP depth="3" style="margin: 8px 0 0 0">-->
-<!--          Важно! Архив должен соответствовать <a href="https://github.com/brusnitsyn/eds-server/blob/main/cert-schema.md">схеме</a>.-->
-<!--          Поддерживаемый формат архива: .zip-->
-<!--        </NP>-->
+        <!--        <NP depth="3" style="margin: 8px 0 0 0"> -->
+        <!--          Важно! Архив должен соответствовать <a href="https://github.com/brusnitsyn/eds-server/blob/main/cert-schema.md">схеме</a>. -->
+        <!--          Поддерживаемый формат архива: .zip -->
+        <!--        </NP> -->
       </NUploadDragger>
     </NUpload>
     <template #footer>
-      <NFlex justify="end">
-        <NButton>
-          Готово
+      <NFlex justify="space-between" align="center">
+        <NCheckbox v-model:checked="isPackage" :checked-value="1" :unchecked-value="0" :disabled="loading">
+          Архив содержит несколько сертификатов
+        </NCheckbox>
+        <NButton type="primary" :loading="loading" :disabled="!fileListLength" @click="handleClickUpload">
+          Загрузить
         </NButton>
       </NFlex>
     </template>
