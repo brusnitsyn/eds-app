@@ -1,19 +1,19 @@
 export default defineNuxtPlugin((nuxtApp) => {
   const config = useRuntimeConfig()
-  const cookieToken = ''
+  const cookieToken = useSanctumAuth().cookieToken
   const api = $fetch.create({
     baseURL: config.public.apiUrl ?? 'http://127.0.0.1:8000/api',
     onRequest({ request, options, error }) {
-      if (cookieToken) {
+      if (cookieToken.value) {
         const headers = options.headers ||= {}
         if (Array.isArray(headers)) {
-          headers.push(['Authorization', `Bearer ${cookieToken}`])
+          headers.push(['Authorization', `Bearer ${cookieToken.value}`])
         }
         else if (headers instanceof Headers) {
-          headers.set('Authorization', `Bearer ${cookieToken}`)
+          headers.set('Authorization', `Bearer ${cookieToken.value}`)
         }
         else {
-          headers.Authorization = `Bearer ${cookieToken}`
+          headers.Authorization = `Bearer ${cookieToken.value}`
         }
       }
     },
