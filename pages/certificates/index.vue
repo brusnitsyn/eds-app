@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { definePageMeta } from '#imports'
-import type {int} from "@es-joy/jsdoccomment";
 
-const { client } = useSanctumFetch()
-const { data, refresh } = await useAsyncData('staff', () => client('/api/staff'))
+const { $api } = useNuxtApp()
+const { data, refresh } = await useAsyncData('staff', () => $api('/api/staff'))
 
 interface responseData {
   persons: (Person[])[]
@@ -102,7 +101,7 @@ definePageMeta({
     </div>
     <n-data-table
       striped :max-height="500" :row-props="openEditPage" :columns="columns"
-      :data="(data as responseData).persons" :bordered="true"
+      :data="(data as responseData).data.persons" :bordered="true"
     />
   </div>
   <ModalsAddManyCertificates :open="hasOpenMultiAddDialog" :refresh="refresh" @update:open="value => hasOpenMultiAddDialog = value" />
