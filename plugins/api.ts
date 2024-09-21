@@ -8,12 +8,15 @@ export default defineNuxtPlugin((nuxtApp) => {
         const headers = options.headers ||= {}
         if (Array.isArray(headers)) {
           headers.push(['Authorization', `Bearer ${cookieToken.value}`])
+          headers.push(['Accept', `application/json`])
         }
         else if (headers instanceof Headers) {
           headers.set('Authorization', `Bearer ${cookieToken.value}`)
+          headers.set('Accept', `application/json`)
         }
         else {
           headers.Authorization = `Bearer ${cookieToken.value}`
+          headers.Accept = `application/json`
         }
       }
     },
