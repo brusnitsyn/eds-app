@@ -16,7 +16,6 @@ async function uploadArchive({ file }: UploadCustomRequestOptions) {
 
   const { status } = await useAPI('/api/certificate/upload', {
     method: 'POST',
-    mode: 'no-cors',
     body: formData
   })
 
