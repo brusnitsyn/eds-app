@@ -3,15 +3,15 @@ import { IconUpload } from '@tabler/icons-vue'
 
 const config = useRuntimeConfig()
 const message = useMessage()
-const { client } = useSanctumFetch()
+const { $api } = useNuxtApp()
 
 const id = Number.parseInt(useRoute().params.id as string)
 
 // const userModel = await $client.getUser.useQuery({ id })
 
-const { data: staff } = await useAsyncData(`staff-id`, () => client(`/api/staff/${id}`))
+const { data: staff } = await useAsyncData(`staff-id`, () => $api(`/api/staff/${id}`))
 
-const { data: divisions } = await useAsyncData('divisions', () => client(`/api/division`))
+const { data: divisions } = await useAsyncData('divisions', () => $api(`/api/division`))
 
 const formatedDivisions = divisions.value.divisions.map(item => ({
   ...item,
@@ -40,19 +40,19 @@ async function customRequest({
     })
   }
   formData.append('certificate', file.file as File)
-  const response = await client('/api/certificate/read', {
+  const { data: responseData } = await useAPI('/api/certificate/read', {
     method: 'POST',
     body: formData
   })
-  model.value = response
+  model.value = responseData.value
 }
 
 async function onSubmit() {
-  const response = await client(`/api/staff/${id}`, {
+  const {status} = await useAPI(`/api/staff/${id}`, {
     method: 'POST',
     body: model.value
   })
-  if (response.status === 'ok') {
+  if (status.value === 'success') {
     message.success(response.message, {
       keepAliveOnHover: true
     })

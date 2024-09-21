@@ -9,9 +9,10 @@ definePageMeta({
 
 const config = useRuntimeConfig()
 const message = useMessage()
-const { client } = useSanctumFetch()
+// const { client } = useSanctumFetch()
 
-const { data: divisions } = await useAsyncData('division', () => client('/api/division'))
+const { $api } = useNuxtApp()
+const { data: divisions } = await useAsyncData('division', () => $api('/api/division'))
 
 const formatedDivisions = divisions.value.divisions.map(item => ({
   ...item,
@@ -61,7 +62,7 @@ async function customRequest({
     })
   }
   formData.append('certificate', file.file as File)
-  const response = await client('/api/certificate/read', {
+  const response = await useAPI('/api/certificate/read', {
     method: 'POST',
     body: formData
   })
@@ -69,12 +70,12 @@ async function customRequest({
 }
 
 async function onSubmit() {
-  const response = await client(`/api/staff`, {
+  const { status } = await useAPI(`/api/staff`, {
     method: 'post',
     body: model.value
   })
-  console.log(response)
-  if (response.status === 'ok') {
+
+  if (status.value === 'success') {
     message.success(response.message, {
       keepAliveOnHover: true
     })
