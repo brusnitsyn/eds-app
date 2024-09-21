@@ -42,6 +42,7 @@ async function validateForm(e: MouseEvent) {
 
 definePageMeta({
   layout: 'centered',
+  middleware: 'sanctum-guest'
 })
 </script>
 

@@ -9,9 +9,9 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      proxyApiUrl: process.env.PROXY_API_URL,
+      apiUrl: process.env.API_URL,
       sanctum: {
-        baseUrl: process.env.PROXY_API_URL,
+        baseUrl: process.env.API_URL,
         endpoints: {
           login: '/api/auth/login',
           user: '/api/user',
@@ -29,7 +29,7 @@ export default defineNuxtConfig({
 
   sanctum: {
     mode: 'token',
-    baseUrl: process.env.PROXY_API_URL,
+    baseUrl: process.env.API_URL,
     endpoints: {
       login: '/api/auth/login',
       user: '/api/user',

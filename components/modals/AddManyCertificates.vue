@@ -3,7 +3,6 @@ import type { UploadCustomRequestOptions, UploadFileInfo, UploadInst } from 'nai
 
 const props = defineProps<{ open: boolean, refresh: void }>()
 const emits = defineEmits('update:open')
-const { client } = useSanctumFetch()
 const isPackage = ref(0)
 const uploadRef = ref<UploadInst | null>(null)
 const fileListLength = ref(0)
@@ -15,12 +14,12 @@ async function uploadArchive({ file }: UploadCustomRequestOptions) {
   formData.append('archive', file.file as File)
   formData.append('is_package', isPackage.value)
 
-  const response = await client('/api/certificate/upload', {
+  const { status } = await useAPI('/certificate/upload', {
     method: 'POST',
     body: formData
   })
 
-  if (response.status === 'ok') {
+  if (status.value === 'success') {
     await props.refresh()
     emits('update:open', false)
   }
