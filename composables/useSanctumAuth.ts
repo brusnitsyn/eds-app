@@ -15,6 +15,7 @@ export function useSanctumAuth() {
   async function login(credentials: Record<string, any>) {
     const { data } = await useAPI(config.endpoints.login, {
       method: 'POST',
+      mode: 'no-cors',
       body: credentials
     })
 
