@@ -20,9 +20,11 @@ export function useSanctumAuth() {
 
     if (data.value.token) {
       cookieToken.value = data.value.token
-      // return navigateTo(config.redirect.onLogin, { replace: true })
-      // await refreshUser()
+
+      return true
     }
+
+    return false
   }
 
   return {

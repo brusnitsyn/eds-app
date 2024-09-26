@@ -21,17 +21,19 @@ const rules = {
   }
 }
 
-const config = useRuntimeConfig()
 const { login } = useSanctumAuth()
-async function validateForm(e: MouseEvent) {
+const { redirect } = useSanctumConfig()
+async function validateForm(e) {
   e.preventDefault()
   formRef.value?.validate(
     async (errors: Array<FormValidationError> | undefined) => {
       if (!errors) {
-        await login({
+        const result = await login({
           login: model.value.login,
           password: model.value.password
         })
+
+        if (result) { navigateTo(redirect.onLogin, { replace: true }) }
       }
       else {
         /// TODO: add message send
@@ -57,17 +59,18 @@ definePageMeta({
       pane-style="padding-left: 4px; padding-right: 4px; box-sizing: border-box;"
     >
       <NTabPane name="signin" tab="Авторизация">
-        <NForm ref="formRef" :model="model" :rules="rules">
+        <NForm ref="formRef" :model="model" :rules="rules" class="pb-2" @submit.prevent="validateForm">
           <NFormItem path="login" label="Имя пользователя">
-            <NInput id="login" v-model:value="model.login" type="text" placeholder="abrusnitsyn" @keydown.enter.prevent />
+            <NInput id="login" v-model:value="model.login" type="text" placeholder="abrusnitsyn" @keydown.enter.prevent="validateForm" />
           </NFormItem>
           <NFormItem path="password" label="Пароль">
-            <NInput id="password" v-model:value="model.password" show-password-on="click" type="password" placeholder="••••••" @keydown.enter.prevent />
+            <NInput id="password" v-model:value="model.password" show-password-on="click" type="password" placeholder="••••••" @keydown.enter.prevent="validateForm" />
           </NFormItem>
+
+          <NButton attr-type="submit" type="primary" block strong @click="validateForm">
+            Войти
+          </NButton>
         </NForm>
-        <NButton attr-type="submit" type="primary" block secondary strong @click="validateForm">
-          Войти
-        </NButton>
       </NTabPane>
     </NTabs>
   </NCard>

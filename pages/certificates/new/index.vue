@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { IconUpload } from '@tabler/icons-vue'
 import type { UploadCustomRequestOptions, UploadFileInfo } from 'naive-ui'
-import { useSanctumFetch } from '../../../composables/useSanctumFetch'
 
 definePageMeta({
   middleware: 'sanctum-auth'
@@ -68,7 +67,7 @@ async function customRequest({
   })
   model.value = { ...model.value, ...response }
 }
-
+console.log(useRoute())
 async function onSubmit() {
   const { status } = await useAPI(`/api/staff`, {
     method: 'post',

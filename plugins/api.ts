@@ -23,6 +23,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     },
     async onResponseError({ response }) {
       if (response.status === 401) {
+        cookieToken.value = null
         await nuxtApp.runWithContext(() => navigateTo('/auth'))
       }
     }

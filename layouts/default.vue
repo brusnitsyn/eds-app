@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { defineComponent, h, ref } from 'vue'
-import { NIcon } from 'naive-ui'
+import { h, ref } from 'vue'
+import { NAvatar, NIcon, NText } from 'naive-ui'
 import {
   IconAffiliate,
   IconBook,
@@ -13,11 +13,10 @@ import {
   IconUsersGroup
 } from '@tabler/icons-vue'
 import { NuxtLink } from '#components'
-import { TOP_MENU_HEIGHT } from '~/constants'
 
-const data = {}
+const { user } = useSanctumAuth()
 
-function renderIcon(icon: Object) {
+function renderIcon(icon: Component) {
   return h(NIcon, null, { default: () => h(icon) })
 }
 
@@ -119,7 +118,39 @@ const menuOptions = [
   }
 ]
 
+function renderUserInfo() {
+  return h(
+    'div',
+    {
+      class: 'flex items-center py-1 px-4'
+    },
+    [
+      h(NAvatar, {
+        round: true,
+        class: 'mr-3',
+      }, { default: () => user.value.name[0] }),
+      h('div', null, [
+        h('div', null, [
+          h(NText, { depth: 0 }, { default: () => user.value.name })
+        ]),
+        h('div', null, [
+          h(NText, { depth: 3 }, { default: () => user.value.login })
+        ])
+      ])
+    ]
+  )
+}
+
 const userOptions = [
+  {
+    key: 'user',
+    type: 'render',
+    render: renderUserInfo
+  },
+  {
+    key: 'header-divider',
+    type: 'divider'
+  },
   {
     label: 'Выход из аккаунта',
     key: 'logout',
@@ -131,12 +162,17 @@ const userOptions = [
 <template>
   <NLayout class="max-h-screen">
     <NLayoutHeader bordered class="sticky top-0 z-50">
-      <NFlex inline :wrap="false" justify="end" align="center" class="w-full px-4 py-1">
-        <NDropdown :options="userOptions">
+      <NFlex inline :wrap="false" justify="space-between" align="center" class="w-full px-4 py-1">
+        <NText class="text-xl font-semibold">
+          EDS
+        </NText>
+        <NDropdown placement="bottom-end" trigger="click" :options="userOptions" :render-icon="renderMenuIcon">
           <NButton quaternary>
             <NFlex align="center">
-              <NAvatar size="small" round src="https://sun67-2.userapi.com/s/v1/ig2/YK9JXVcvBHPl2DzdLHXg--kQDMKmkFQfzjO8z534cqBHdx53JU0fX7UTBqoe5OroRTy08lE5pXN7xDdABMJ1heWI.jpg?size=50x50&quality=95&crop=0,0,511,511&ava=1" />
-              <span>{{ data.login }}</span>
+              <NAvatar size="small" round>
+                {{ user.name[0] }}
+              </NAvatar>
+              <span>{{ user.name }}</span>
             </NFlex>
           </NButton>
         </NDropdown>
