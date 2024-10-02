@@ -1,9 +1,10 @@
 export default defineNuxtPlugin((nuxtApp) => {
   const config = useRuntimeConfig()
-  const cookieToken = useSanctumAuth().cookieToken
   const api = $fetch.create({
     baseURL: config.public.apiUrl ?? 'http://127.0.0.1:8000/api',
     onRequest({ request, options, error }) {
+      const cookieToken = useCookie('token')
+
       if (cookieToken.value) {
         options.mode = options.mode ?? 'cors'
         const headers = options.headers ||= {}

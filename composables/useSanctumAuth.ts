@@ -20,7 +20,7 @@ export function useSanctumAuth() {
 
     if (data.value.token) {
       cookieToken.value = data.value.token
-
+      if (cookieToken.value) await refreshUser()
       return true
     }
 

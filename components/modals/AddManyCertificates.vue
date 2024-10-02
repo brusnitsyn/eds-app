@@ -47,7 +47,7 @@ function handleClickUpload() {
     >
       <NUploadDragger>
         <div style="margin-bottom: 12px">
-          <NaiveIcon size="48" :depth="3" name="tabler:archive" />
+          <NaiveIcon size="48" :depth="3" name="tabler:file-zip" />
         </div>
         <NText style="font-size: 16px">
           Нажмите или перетащите архив в эту область, чтобы загрузить
