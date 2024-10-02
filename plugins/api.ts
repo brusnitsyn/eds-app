@@ -5,7 +5,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     baseURL: config.public.apiUrl ?? 'http://127.0.0.1:8000/api',
     onRequest({ request, options, error }) {
       if (cookieToken.value) {
-        options.mode = 'cors'
+        options.mode = options.mode ?? 'cors'
         const headers = options.headers ||= {}
         if (Array.isArray(headers)) {
           headers.push(['Authorization', `Bearer ${cookieToken.value}`])
