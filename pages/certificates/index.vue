@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { definePageMeta } from '#imports'
+import {NButton} from "naive-ui";
+import { IconLink, IconFileZip, IconSquareRoundedPlus, IconSearch } from '@tabler/icons-vue'
 
 const staffPage = computed({
   get() {
@@ -75,6 +77,9 @@ interface Person {
 
 const columns = [
   {
+    type: 'selection'
+  },
+  {
     title: 'ID',
     key: 'id',
     width: 50
@@ -82,7 +87,7 @@ const columns = [
   {
     title: 'ФИО',
     key: 'full_name',
-    width: 280
+    width: 280,
   },
   {
     title: 'СНИЛС',
@@ -99,6 +104,27 @@ const columns = [
     key: 'job_title',
     ellipsis: {
       tooltip: true
+    }
+  },
+  {
+    title:'',
+    key: 'actions',
+    width: 150,
+    render(row) {
+      return h(
+          NButton,
+          {
+            tertiary: true,
+            size: 'small',
+            onClick: async () => {
+              await navigateTo({ name: 'certificates-id', params: { id: row.id } })
+            }
+          },
+          {
+            default: () => 'Сертификат',
+            icon: () => h(IconLink)
+          }
+      )
     }
   }
 ]
@@ -157,6 +183,36 @@ function stylingRow(row: RowData) {
   return ''
 }
 
+function rowKey(row) {
+  return row.id
+}
+
+const checkedRows = ref([])
+
+function handleCheck(rowKeys) {
+  checkedRows.value = rowKeys
+}
+
+async function downloadCert() {
+  if (checkedRows.value.length) {
+    status.value = 'pending'
+
+    const {data: downloadData, status: downloadStatus} = await useAPI('/api/certificate/download', {
+      method: 'POST',
+      body: {
+        staff_ids: checkedRows.value
+      }
+    })
+
+    if (downloadStatus.value === 'success') {
+      const file = window.URL.createObjectURL(downloadData.value)
+      window.location.assign(file)
+    }
+
+    status.value = downloadStatus.value
+  }
+}
+
 definePageMeta({
   middleware: 'sanctum-auth'
 })
@@ -169,22 +225,36 @@ definePageMeta({
         Сертификаты
       </h1>
       <NButton type="primary" @click="openDialog">
+        <template #icon>
+          <IconSquareRoundedPlus />
+        </template>
         Добавить
       </NButton>
     </div>
 
     <NSpace vertical>
       <NSpace vertical>
-        <n-radio-group v-model:value="validType" :disabled="status === 'pending'">
-          <n-radio-button label="Все" :value="null" />
-          <n-radio-button label="Требующие перевыпуск" value="new-request" />
-          <n-radio-button label="Истекшие" value="no-valid" />
-        </n-radio-group>
+        <NFlex justify="space-between" align="center">
+          <n-radio-group v-model:value="validType" :disabled="status === 'pending'">
+            <n-radio-button label="Все" :value="null" />
+            <n-radio-button label="Требующие перевыпуск" value="new-request" />
+            <n-radio-button label="Истекшие" value="no-valid" />
+          </n-radio-group>
+
+          <NButton secondary v-if="checkedRows.length" @click="downloadCert" :disabled="status === 'pending'">
+            <template #icon>
+              <IconFileZip />
+            </template>
+            Скачать
+          </NButton>
+        </NFlex>
         <n-input-group>
           <n-select v-model:value="selectedSearchStaffOption" :disabled="status === 'pending'" size="large" :style="{ width: '33%' }" :options="selectSearchStaffOptions" placeholder="Искать по" />
           <n-input v-model:value="searchStaffValue" :disabled="status === 'pending'" size="large" placeholder="Значение поиска" @keydown.enter.prevent="searchStaff" />
           <n-button :disabled="status === 'pending'" size="large" @click="searchStaff">
-            Поиск
+            <template #icon>
+              <IconSearch />
+            </template>
           </n-button>
         </n-input-group>
       </NSpace>
@@ -194,8 +264,10 @@ definePageMeta({
         :pagination="pagination"
         :loading="status === 'pending'"
         :row-class-name="stylingRow"
-        :max-height="600" :row-props="openEditPage" :columns="columns"
+        :row-key="rowKey"
+        :max-height="600"  :columns="columns"
         :data="(data as responseData).data.persons" :bordered="true"
+        @update:checked-row-keys="handleCheck"
       />
     </NSpace>
   </div>
