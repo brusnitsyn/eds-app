@@ -15,6 +15,7 @@ async function uploadArchive({ file }: UploadCustomRequestOptions) {
   formData.append('is_package', isPackage.value)
 
   const { status } = await useAPI('/api/certificate/upload', {
+    mode: 'cors',
     method: 'POST',
     body: formData
   })
