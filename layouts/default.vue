@@ -88,8 +88,11 @@ const menuOptions = [
       },
       {
         label: 'Журнал регистрации падений пациентов и посетителей',
-        key: 'fallslog',
-        icon: IconNotes
+        key: 'pacient-falls',
+        icon: IconNotes,
+        to: {
+          name: 'journals-pacient-falls'
+        }
       },
       {
         label: 'Реестр рисков',
@@ -200,7 +203,7 @@ const userOptions = [
           :default-value="1"
         />
       </n-layout-sider>
-      <div class="container max-w-5xl mx-auto pt-8 h-[calc(100vh-42px)] max-h-[calc(100vh-42px)]">
+      <div class="container max-w-7xl mx-auto pt-8 h-[calc(100vh-42px)] max-h-[calc(100vh-42px)]">
         <slot />
       </div>
     </n-layout>
