@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { NButton } from 'naive-ui'
+import { IconFileZip, IconLink, IconSearch, IconSquareRoundedPlus } from '@tabler/icons-vue'
 import { definePageMeta } from '#imports'
-import {NButton} from "naive-ui";
-import { IconLink, IconFileZip, IconSquareRoundedPlus, IconSearch } from '@tabler/icons-vue'
 
 const staffPage = computed({
   get() {
@@ -107,23 +107,23 @@ const columns = [
     }
   },
   {
-    title:'',
+    title: '',
     key: 'actions',
     width: 150,
     render(row) {
       return h(
-          NButton,
-          {
-            tertiary: true,
-            size: 'small',
-            onClick: async () => {
-              await navigateTo({ name: 'certificates-id', params: { id: row.id } })
-            }
-          },
-          {
-            default: () => 'Сертификат',
-            icon: () => h(IconLink)
+        NButton,
+        {
+          tertiary: true,
+          size: 'small',
+          onClick: async () => {
+            await navigateTo({ name: 'certificates-id', params: { id: row.id } })
           }
+        },
+        {
+          default: () => 'Сертификат',
+          icon: () => h(IconLink)
+        }
       )
     }
   }
@@ -197,7 +197,7 @@ async function downloadCert() {
   if (checkedRows.value.length) {
     status.value = 'pending'
 
-    const {data: downloadData, status: downloadStatus} = await useAPI('/api/certificate/download', {
+    const { data: downloadData, status: downloadStatus } = await useAPI('/api/certificate/download', {
       method: 'POST',
       body: {
         staff_ids: checkedRows.value
@@ -241,7 +241,7 @@ definePageMeta({
             <n-radio-button label="Истекшие" value="no-valid" />
           </n-radio-group>
 
-          <NButton secondary v-if="checkedRows.length" @click="downloadCert" :disabled="status === 'pending'">
+          <NButton v-if="checkedRows.length" secondary :disabled="status === 'pending'" @click="downloadCert">
             <template #icon>
               <IconFileZip />
             </template>
@@ -251,11 +251,11 @@ definePageMeta({
         <n-input-group>
           <n-select v-model:value="selectedSearchStaffOption" :disabled="status === 'pending'" size="large" :style="{ width: '33%' }" :options="selectSearchStaffOptions" placeholder="Искать по" />
           <n-input v-model:value="searchStaffValue" :disabled="status === 'pending'" size="large" placeholder="Значение поиска" @keydown.enter.prevent="searchStaff" />
-          <n-button :disabled="status === 'pending'" size="large" @click="searchStaff">
+          <NButton :disabled="status === 'pending'" size="large" @click="searchStaff">
             <template #icon>
               <IconSearch />
             </template>
-          </n-button>
+          </NButton>
         </n-input-group>
       </NSpace>
 
@@ -265,7 +265,7 @@ definePageMeta({
         :loading="status === 'pending'"
         :row-class-name="stylingRow"
         :row-key="rowKey"
-        :max-height="600"  :columns="columns"
+        :max-height="600" :columns="columns"
         :data="(data as responseData).data.persons" :bordered="true"
         @update:checked-row-keys="handleCheck"
       />
