@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { definePageMeta } from '#imports'
 import {NButton} from "naive-ui";
-import { IconLink, IconFileZip, IconSquareRoundedPlus, IconSearch } from '@tabler/icons-vue'
+import { IconLink, IconFileZip, IconSquareRoundedPlus, IconSearch, IconFileExcel } from '@tabler/icons-vue'
 
 const staffPage = computed({
   get() {
@@ -213,6 +213,24 @@ async function downloadCert() {
   }
 }
 
+async function downloadExcel() {
+  status.value = 'pending'
+
+  const {data: downloadData, status: downloadStatus} = await useAPI('/api/staff/export', {
+    method: 'GET',
+    query: {
+      valid_type: useRoute().query.valid_type ?? null
+    }
+  })
+
+  if (downloadStatus.value === 'success') {
+    const file = window.URL.createObjectURL(downloadData.value)
+    window.location.assign(file)
+  }
+
+  status.value = downloadStatus.value
+}
+
 definePageMeta({
   middleware: 'sanctum-auth'
 })
@@ -224,12 +242,20 @@ definePageMeta({
       <h1 class="text-2xl font-bold">
         Сертификаты
       </h1>
-      <NButton type="primary" @click="openDialog">
-        <template #icon>
-          <IconSquareRoundedPlus />
-        </template>
-        Добавить
-      </NButton>
+      <NSpace>
+        <NButton secondary @click="downloadExcel" :loading="status === 'pending'">
+          <template #icon>
+            <IconFileExcel />
+          </template>
+          Экспортировать
+        </NButton>
+        <NButton type="primary" @click="openDialog">
+          <template #icon>
+            <IconSquareRoundedPlus />
+          </template>
+          Добавить
+        </NButton>
+      </NSpace>
     </div>
 
     <NSpace vertical>
