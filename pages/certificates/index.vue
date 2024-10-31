@@ -2,6 +2,8 @@
 import { NButton } from 'naive-ui'
 import { IconFileExcel, IconFileZip, IconLink, IconSearch, IconSquareRoundedPlus } from '@tabler/icons-vue'
 import { definePageMeta } from '#imports'
+import { AppLink } from '#components'
+import {parse} from 'date-fns'
 
 const staffPage = computed({
   get() {
@@ -75,33 +77,54 @@ interface Person {
   cert_valid_to: number
 }
 
-const columns = [
+const columns = ref([
   {
-    type: 'selection'
+    type: 'selection',
   },
   {
     title: 'ID',
     key: 'id',
-    width: 50
+    width: 50,
   },
   {
     title: 'ФИО',
     key: 'full_name',
     width: 280,
+    sorter: 'default',
+    render(row) {
+      return h(
+        AppLink,
+        {
+          to: { name: 'certificates-id', params: { id: row.id } },
+        },
+        {
+          default: () => row.full_name,
+        }
+      )
+    }
   },
   {
     title: 'СНИЛС',
     key: 'snils',
-    width: 120
+    width: 120,
+    sorter: 'default',
   },
   {
     title: 'Действует до',
     key: 'cert_valid_to',
-    width: 120
+    width: 120,
+    sortOrder: false,
+    sorter(rowA, rowB) {
+      const dateA = parse(rowA.cert_valid_to, 'dd.MM.yyyy', new Date())
+      const dateB = parse(rowB.cert_valid_to, 'dd.MM.yyyy', new Date())
+      const rsl = dateA - dateB
+      return rsl
+    }
   },
   {
     title: 'Должность',
     key: 'job_title',
+    sorter: 'default',
     ellipsis: {
       tooltip: true
     }
@@ -127,7 +150,22 @@ const columns = [
       )
     }
   }
-]
+])
+
+/// TODO: параметр remote на таблице отключает сортировку. Сортировка требуется со стороны API
+function handleSorterChange(sorter) {
+  columns.value.forEach((column) => {
+    if (column.sortOrder === undefined) { return }
+    if (!sorter) {
+      column.sortOrder = false
+      return
+    }
+    if (column.key === sorter.columnKey) {
+      column.sortOrder = sorter.order
+    }
+    else { column.sortOrder = false }
+  })
+}
 
 function openEditPage(row) {
   return {
@@ -291,8 +329,9 @@ definePageMeta({
         :loading="status === 'pending'"
         :row-class-name="stylingRow"
         :row-key="rowKey"
-        :max-height="600" :columns="columns"
-        :data="(data as responseData).data.persons" :bordered="true"
+        :max-height="600"
+        :columns="columns" :data="(data as responseData).data.persons"
+        :bordered="true" @update:sorter="handleSorterChange"
         @update:checked-row-keys="handleCheck"
       />
     </NSpace>
