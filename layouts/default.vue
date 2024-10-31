@@ -7,14 +7,14 @@ import {
   IconBriefcase,
   IconCertificate,
   IconChevronDown,
-  IconLockAccess,
   IconLogout,
   IconNotes,
   IconUsersGroup
 } from '@tabler/icons-vue'
-import { NuxtLink } from '#components'
+import {AppThemeSwitcher, NuxtLink} from '#components'
 
 const { user } = useSanctumAuth()
+const route = useRoute()
 
 function renderIcon(icon: Component) {
   return h(NIcon, null, { default: () => h(icon) })
@@ -49,23 +49,23 @@ function expandIcon() {
 const menuOptions = [
   {
     label: 'ЭЦП',
-    key: 'eds',
+    key: '/certificates',
     icon: IconCertificate,
     to: {
       name: 'certificates'
     }
   },
-  {
-    label: 'Доступы',
-    key: 'access',
-    icon: IconLockAccess,
-    to: {
-      name: 'certificates'
-    }
-  },
+  // {
+  //   label: 'Доступы',
+  //   key: '/access',
+  //   icon: IconLockAccess,
+  //   to: {
+  //     name: 'certificates'
+  //   }
+  // },
   {
     label: 'Кадры',
-    key: 'cadrs',
+    key: '/cadrs',
     icon: IconUsersGroup,
     to: {
       name: 'cadrs'
@@ -73,22 +73,22 @@ const menuOptions = [
   },
   {
     label: 'Журналы',
-    key: 'journals',
+    key: '/journals',
     icon: IconBook,
     children: [
       {
         label: 'Отчет по пролежням',
-        key: 'rob',
+        key: '/journals/rob',
         icon: IconNotes
       },
       {
         label: 'Вакансии',
-        key: 'vacan',
+        key: '/journals/vacan',
         icon: IconBriefcase
       },
       {
         label: 'Журнал регистрации падений пациентов и посетителей',
-        key: 'pacient-falls',
+        key: '/journals/pacient-falls',
         icon: IconNotes,
         to: {
           name: 'journals-pacient-falls'
@@ -96,24 +96,24 @@ const menuOptions = [
       },
       {
         label: 'Реестр рисков',
-        key: 'riskreg',
+        key: '/journals/riskreg',
         icon: IconNotes
       },
       {
         label: 'Хирургия Осложнения',
-        key: 'surcom',
+        key: '/journals/surcom',
         icon: IconNotes
       },
       {
         label: 'Учет нежелательных событий в регистратуре поликлиники ',
-        key: 'events',
+        key: '/journals/events',
         icon: IconNotes
       }
     ]
   },
   {
     label: 'Подразделения',
-    key: 'divisions',
+    key: '/divisions',
     icon: IconAffiliate,
     to: {
       name: 'divisions'
@@ -169,20 +169,23 @@ const userOptions = [
         <NText class="text-xl font-semibold">
           EDS
         </NText>
-        <NDropdown placement="bottom-end" trigger="click" :options="userOptions" :render-icon="renderMenuIcon">
-          <NButton quaternary>
-            <NFlex align="center">
-              <NAvatar size="small" round>
-                {{ user.name[0] }}
-              </NAvatar>
-              <span>{{ user.name }}</span>
-            </NFlex>
-          </NButton>
-        </NDropdown>
+        <div class="flex items-center justify-center gap-x-2">
+          <AppThemeSwitcher />
+          <NDropdown placement="bottom-end" trigger="click" :options="userOptions" :render-icon="renderMenuIcon">
+            <NButton quaternary>
+              <NFlex align="center">
+                <NAvatar size="small" round>
+                  {{ user.name[0] }}
+                </NAvatar>
+                <span>{{ user.name }}</span>
+              </NFlex>
+            </NButton>
+          </NDropdown>
+        </div>
       </NFlex>
     </NLayoutHeader>
-    <n-layout has-sider class="h-full sticky left-0 bottom-0 top-0 z-40">
-      <n-layout-sider
+    <NLayout has-sider class="h-full sticky left-0 bottom-0 top-0 z-40">
+      <NLayoutSider
         bordered
         collapse-mode="width"
         :collapsed-width="64"
@@ -192,7 +195,7 @@ const userOptions = [
         @collapse="collapsed = true"
         @expand="collapsed = false"
       >
-        <n-menu
+        <NMenu
           :collapsed="collapsed"
           :collapsed-width="64"
           :collapsed-icon-size="22"
@@ -200,13 +203,13 @@ const userOptions = [
           :render-label="renderMenuLabel"
           :render-icon="renderMenuIcon"
           :expand-icon="expandIcon"
-          :default-value="1"
+          :default-value="route.path"
         />
-      </n-layout-sider>
+      </NLayoutSider>
       <div class="container max-w-7xl mx-auto pt-8 h-[calc(100vh-42px)] max-h-[calc(100vh-42px)]">
         <slot />
       </div>
-    </n-layout>
+    </NLayout>
   </NLayout>
 </template>
 
