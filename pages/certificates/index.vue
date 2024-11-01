@@ -90,7 +90,7 @@ const columns = ref([
     title: 'ФИО',
     key: 'full_name',
     width: 280,
-    sorter: 'default',
+    // sorter: 'default',
     render(row) {
       return h(
         AppLink,
@@ -107,49 +107,49 @@ const columns = ref([
     title: 'СНИЛС',
     key: 'snils',
     width: 120,
-    sorter: 'default',
+    // sorter: 'default',
   },
   {
     title: 'Действует до',
     key: 'cert_valid_to',
     width: 120,
-    sortOrder: false,
-    sorter(rowA, rowB) {
-      const dateA = parse(rowA.cert_valid_to, 'dd.MM.yyyy', new Date())
-      const dateB = parse(rowB.cert_valid_to, 'dd.MM.yyyy', new Date())
-      const rsl = dateA - dateB
-      return rsl
-    }
+    // sortOrder: false,
+    // sorter(rowA, rowB) {
+    //   const dateA = parse(rowA.cert_valid_to, 'dd.MM.yyyy', new Date())
+    //   const dateB = parse(rowB.cert_valid_to, 'dd.MM.yyyy', new Date())
+    //   const rsl = dateA - dateB
+    //   return rsl
+    // }
   },
   {
     title: 'Должность',
     key: 'job_title',
-    sorter: 'default',
+    // sorter: 'default',
     ellipsis: {
       tooltip: true
     }
   },
-  {
-    title: '',
-    key: 'actions',
-    width: 150,
-    render(row) {
-      return h(
-        NButton,
-        {
-          tertiary: true,
-          size: 'small',
-          onClick: async () => {
-            await navigateTo({ name: 'certificates-id', params: { id: row.id } })
-          }
-        },
-        {
-          default: () => 'Сертификат',
-          icon: () => h(IconLink)
-        }
-      )
-    }
-  }
+  // {
+  //   title: '',
+  //   key: 'actions',
+  //   width: 150,
+  //   render(row) {
+  //     return h(
+  //       NButton,
+  //       {
+  //         tertiary: true,
+  //         size: 'small',
+  //         onClick: async () => {
+  //           await navigateTo({ name: 'certificates-id', params: { id: row.id } })
+  //         }
+  //       },
+  //       {
+  //         default: () => 'Сертификат',
+  //         icon: () => h(IconLink)
+  //       }
+  //     )
+  //   }
+  // }
 ])
 
 /// TODO: параметр remote на таблице отключает сортировку. Сортировка требуется со стороны API
