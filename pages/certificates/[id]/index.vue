@@ -68,9 +68,12 @@ definePageMeta({
 <template>
   <div>
     <div class="flex flex-row justify-between items-center pb-5">
-      <h1 class="text-2xl font-bold">
-        {{ model.full_name }}
-      </h1>
+      <NSpace vertical>
+        <AppBack />
+        <h1 class="text-2xl font-bold">
+          {{ model.full_name }}
+        </h1>
+      </NSpace>
       <n-form-item label="Редактирование" label-placement="left" :show-feedback="false">
         <n-switch v-model:value="disableForm" />
       </n-form-item>
