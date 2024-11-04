@@ -11,7 +11,7 @@ import {
   IconNotes,
   IconUsersGroup
 } from '@tabler/icons-vue'
-import {AppThemeSwitcher, NuxtLink} from '#components'
+import { NuxtLink } from '#components'
 
 const { user } = useSanctumAuth()
 const route = useRoute()
@@ -163,50 +163,51 @@ const userOptions = [
 </script>
 
 <template>
-  <NLayout class="max-h-screen">
-    <NLayoutHeader bordered class="sticky top-0 z-50">
-      <NFlex inline :wrap="false" justify="space-between" align="center" class="w-full px-4 py-1">
-        <NText class="text-xl font-semibold">
-          EDS
-        </NText>
-        <div class="flex items-center justify-center gap-x-2">
-          <AppThemeSwitcher />
-          <NDropdown placement="bottom-end" trigger="click" :options="userOptions" :render-icon="renderMenuIcon">
-            <NButton quaternary>
-              <NFlex align="center">
-                <NAvatar size="small" round>
-                  {{ user.name[0] }}
-                </NAvatar>
-                <span>{{ user.name }}</span>
-              </NFlex>
-            </NButton>
-          </NDropdown>
-        </div>
-      </NFlex>
-    </NLayoutHeader>
+  <NLayout class="h-screen max-h-screen">
     <NLayout has-sider class="h-full sticky left-0 bottom-0 top-0 z-40">
       <NLayoutSider
-        bordered
         collapse-mode="width"
         :collapsed-width="64"
-        :width="240"
-        :collapsed="collapsed"
-        show-trigger
-        @collapse="collapsed = true"
-        @expand="collapsed = false"
+        :width="280"
+        content-class="flex flex-col"
       >
-        <NMenu
-          :collapsed="collapsed"
-          :collapsed-width="64"
-          :collapsed-icon-size="22"
-          :options="menuOptions"
-          :render-label="renderMenuLabel"
-          :render-icon="renderMenuIcon"
-          :expand-icon="expandIcon"
-          :default-value="route.path"
-        />
+        <NFlex vertical justify="space-between" class="h-full">
+          <NSpace vertical>
+            <div class="px-2">
+              <NButton quaternary class="!my-6 !py-2 !mb-4 !mt-4 !w-full !h-auto">
+                <template #default>
+                  <NFlex align="center" class="!-ml-16">
+                    <NAvatar :size="48" circle>
+                      {{ user.name[0] }}
+                    </NAvatar>
+                    <NFlex vertical justify="center" :size="2">
+                      <NText class="text-start font-semibold">
+                        {{ user.name }}
+                      </NText>
+                      <NText class="text-start">
+                        {{ user.login }}
+                      </NText>
+                    </NFlex>
+                  </NFlex>
+                </template>
+              </NButton>
+            </div>
+            <NMenu
+              :collapsed-width="64"
+              :collapsed-icon-size="22"
+              :options="menuOptions"
+              :render-label="renderMenuLabel"
+              :render-icon="renderMenuIcon"
+              :expand-icon="expandIcon"
+              :default-value="route.path"
+            />
+          </NSpace>
+          <NSpace vertical class="p-8">
+            <NaiveColorModeSwitch :text="false" secondary icon-light="tabler:sun" icon-dark="tabler:moon" icon-system="tabler:device-desktop" />
+          </NSpace>
+        </NFlex>
       </NLayoutSider>
-      <div class="container max-w-7xl mx-auto pt-8 h-[calc(100vh-42px)] max-h-[calc(100vh-42px)]">
+      <div class="container max-w-7xl mx-auto pt-8 max-h-screen">
         <slot />
       </div>
     </NLayout>

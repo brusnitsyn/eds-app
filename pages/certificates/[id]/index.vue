@@ -1,5 +1,14 @@
 <script lang="ts" setup>
-import { IconUpload } from '@tabler/icons-vue'
+import {
+  IconChevronLeft,
+  IconDownload,
+  IconEdit,
+  IconExternalLink,
+  IconSquareRoundedPlus,
+  IconTrash,
+  IconUpload
+} from '@tabler/icons-vue'
+import { format, toDate } from 'date-fns'
 
 const config = useRuntimeConfig()
 const message = useMessage()
@@ -48,7 +57,7 @@ async function customRequest({
 }
 
 async function onSubmit() {
-  const {status} = await useAPI(`/api/staff/${id}`, {
+  const { status } = await useAPI(`/api/staff/${id}`, {
     method: 'POST',
     body: model.value
   })
@@ -60,124 +69,215 @@ async function onSubmit() {
   }
 }
 
+const hasAlerNewRequest = ref(false)
+const hasAlerNoValid = ref(false)
+const hasAlerValid = ref(false)
+
+if (staff.value.cert.has_valid && !staff.value.cert.has_request_new) {
+  hasAlerValid.value = true
+}
+else if (!staff.value.cert.has_valid && !staff.value.cert.has_request_new) {
+  hasAlerNoValid.value = true
+}
+
 definePageMeta({
   middleware: 'sanctum-auth'
 })
 </script>
 
 <template>
-  <div>
-    <div class="flex flex-row justify-between items-center pb-5">
-      <NSpace vertical>
-        <AppBack />
-        <h1 class="text-2xl font-bold">
-          {{ model.full_name }}
-        </h1>
+  <NGrid :cols="5" :x-gap="16">
+    <NGi span="3">
+      <NSpace vertical class="max-w-3xl">
+        <NCard class="relative">
+          <NButton class="absolute top-2 left-0 -translate-x-1/2" :style="{ border: '1px', borderColor: useThemeVars().value.borderColor, borderStyle: 'solid' }" :color="useThemeVars().value.cardColor" :text-color="useThemeVars().value.textColor3" circle>
+            <template #icon>
+              <NIcon :component="IconChevronLeft" />
+            </template>
+          </NButton>
+          <NAvatar round :size="120" class="font-bold text-3xl">
+            {{ staff.last_name[0] }}{{ staff.first_name[0] }}
+          </NAvatar>
+          <template #action>
+            <NSpace align="center" :size="50">
+              <NText class="text-lg font-bold">
+                {{ staff.full_name }}
+              </NText>
+            </NSpace>
+          </template>
+        </NCard>
+
+        <n-alert v-if="hasAlerValid" title="Все хорошо" type="success">
+          Сертификат действителен
+        </n-alert>
+        <n-alert v-if="hasAlerNewRequest" title="Требуется внимание" type="warning">
+          Срок действия сертификата подходит к концу
+          Срок действия закрытого ключа подходит к концу
+        </n-alert>
+        <n-alert v-if="hasAlerNoValid" title="Все плохо" type="error">
+          Сертификат не действителен
+          Закрытый ключ не действителен
+        </n-alert>
+
+        <NCard title="Общая информация">
+          <template #header-extra>
+            <NButton text>
+              <template #icon>
+                <IconEdit />
+              </template>
+              Изменить
+            </NButton>
+          </template>
+          <NList hoverable>
+            <NListItem>
+              <template #suffix>
+                <AppCopyButton :value="staff.inn" />
+              </template>
+              <NGrid :cols="2">
+                <NGi><NText>ИНН</NText></NGi>
+                <NGi><NText>{{ staff.inn }}</NText></NGi>
+              </NGrid>
+            </NListItem>
+            <NListItem>
+              <template #suffix>
+                <AppCopyButton :value="staff.snils" />
+              </template>
+              <NGrid :cols="2">
+                <NGi><NText>СНИЛС</NText></NGi>
+                <NGi><NText>{{ staff.snils }}</NText></NGi>
+              </NGrid>
+            </NListItem>
+            <NListItem>
+              <template #suffix>
+                <AppCopyButton :value="staff.job_title" />
+              </template>
+              <NGrid :cols="2">
+                <NGi><NText>Должность</NText></NGi>
+                <NGi><NEllipsis>{{ staff.job_title }}</NEllipsis></NGi>
+              </NGrid>
+            </NListItem>
+            <NListItem>
+              <template #suffix>
+                <AppCopyButton :value="staff.division" />
+              </template>
+              <NGrid :cols="2">
+                <NGi><NText>Подразделение</NText></NGi>
+                <NGi><NText>{{ staff.division }}</NText></NGi>
+              </NGrid>
+            </NListItem>
+          </NList>
+        </NCard>
+
+        <NCard title="Сведения о сертификате">
+          <template #header-extra>
+            <NSpace>
+              <NButton text>
+                <template #icon>
+                  <IconUpload />
+                </template>
+                Установить
+              </NButton>
+              <NButton text>
+                <template #icon>
+                  <IconDownload />
+                </template>
+                Скачать
+              </NButton>
+            </NSpace>
+          </template>
+          <NList hoverable>
+            <NListItem>
+              <template #suffix>
+                <AppCopyButton :value="staff.cert.serial_number" />
+              </template>
+              <NGrid :cols="2">
+                <NGi>
+                  <NText class="font-bold">
+                    {{ staff.cert.serial_number }}
+                  </NText>
+                </NGi>
+              </NGrid>
+            </NListItem>
+            <NListItem>
+              <NGrid :cols="2">
+                <NGi><NText>Действителен с</NText></NGi>
+                <NGi><NText>{{ format(toDate(staff.cert.valid_from), 'dd.MM.yyyy') }}</NText></NGi>
+              </NGrid>
+            </NListItem>
+            <NListItem>
+              <NGrid :cols="2">
+                <NGi><NText>Действителен по</NText></NGi>
+                <NGi><NText>{{ format(toDate(staff.cert.valid_to), 'dd.MM.yyyy') }}</NText></NGi>
+              </NGrid>
+            </NListItem>
+            <NListItem>
+              <NGrid :cols="2">
+                <NGi><NText>Срок действия закрытого ключа</NText></NGi>
+                <NGi>
+                  <NText class="blur select-none">
+                    00.00.0000
+                  </NText>
+
+                  <NTag round :bordered="false" class="ml-4">
+                    <div class="!text-sm">
+                      В следующем обновлении
+                    </div>
+                  </NTag>
+                </NGi>
+              </NGrid>
+            </NListItem>
+          </NList>
+        </NCard>
       </NSpace>
-      <n-form-item label="Редактирование" label-placement="left" :show-feedback="false">
-        <n-switch v-model:value="disableForm" />
-      </n-form-item>
-    </div>
-  </div>
-
-  <n-upload
-    v-if="disableForm" directory-dnd :custom-request="customRequest" :show-file-list="false"
-  >
-    <n-upload-dragger>
-      <div style="margin-bottom: 12px">
-        <n-icon size="48" :depth="3">
-          <IconUpload />
-        </n-icon>
-      </div>
-      <n-text style="font-size: 16px">
-        Нажмите или перетащите файл в эту область, чтобы загрузить
-      </n-text>
-      <n-p depth="3" style="margin: 8px 0 0 0">
-        Поддерживаемые форматы: .cer
-      </n-p>
-    </n-upload-dragger>
-  </n-upload>
-
-  <ValidateCert
-    v-else
-    :cert="{ validTo: model.cert.valid_to!, hasValid: model.cert?.has_valid, hasRequestNew: model.cert?.has_request_new }"
-  />
-
-  <n-form ref="formRef" :label-width="80" :model="model" class="pt-4" :disabled="!disableForm">
-    <n-form-item label="Серийный номер сертификата" path="cert.serial_number">
-      <n-input v-model:value="model.cert.serial_number" placeholder="Серийный номер сертификата" disabled />
-    </n-form-item>
-
-    <div class="grid grid-cols-2 gap-4 w-full">
-      <n-form-item label="Дата выпуска" path="cert.valid_from">
-        <n-date-picker
-          v-model:value="model.cert.valid_from" type="datetime" placeholder="Дата выпуска" class="w-full"
-          :format="formatDate" clearable disabled
-        />
-      </n-form-item>
-      <n-form-item label="Дата окончания" path="cert.valid_to">
-        <n-date-picker
-          v-model:value="model.cert.valid_to" type="datetime" placeholder="Дата окончания" class="w-full"
-          :format="formatDate" clearable disabled
-        />
-      </n-form-item>
-    </div>
-
-    <div class="grid grid-cols-2 gap-4 w-full">
-      <n-form-item label="СНИЛС" path="snils">
-        <n-input v-model:value="model.snils" placeholder="СНИЛС" clearable />
-      </n-form-item>
-      <n-form-item label="ИНН" path="inn">
-        <n-input v-model:value="model.inn" placeholder="ИНН" clearable />
-      </n-form-item>
-    </div>
-
-    <div class="grid grid-cols-2 gap-4 w-full">
-      <n-form-item label="Должность" path="job_title">
-        <n-input v-model:value="model.job_title" placeholder="Должность" clearable />
-      </n-form-item>
-      <n-form-item label="Структурное подразделение" path="division_id">
-        <n-select
-          v-model:value="model.division_id" filterable placeholder="Структурное подразделение"
-          :options="formatedDivisions"
-        />
-      </n-form-item>
-    </div>
-
-    <div class="grid grid-cols-3 gap-4 w-full">
-      <n-form-item label="Фамилия" path="last_name">
-        <n-input v-model:value="model.last_name" placeholder="Фамилия" clearable />
-      </n-form-item>
-      <n-form-item label="Имя" path="first_name">
-        <n-input v-model:value="model.first_name" placeholder="Имя" clearable />
-      </n-form-item>
-      <n-form-item label="Отчество" path="middle_name">
-        <n-input v-model:value="model.middle_name" placeholder="Отчество" clearable />
-      </n-form-item>
-    </div>
-
-    <div class="grid grid-cols-3 gap-4 w-full">
-      <n-form-item label="Пол" path="gender">
-        <n-radio-group v-model:value="model.gender">
-          <n-radio-button value="slava" label="Мужской" />
-          <n-radio-button value="liza" label="Женский" />
-        </n-radio-group>
-      </n-form-item>
-      <n-form-item label="Дата рождения" path="dob">
-        <n-date-picker
-          v-model:value="model.dob" :actions="null" type="date" placeholder="Дата рождения"
-          :format="formatDate" class="w-full" clearable
-        />
-      </n-form-item>
-      <n-form-item label="Номер телефона" path="tel">
-        <n-input v-model:value="model.tel" placeholder="Номер телефона" clearable />
-      </n-form-item>
-    </div>
-  </n-form>
-
-  <n-flex v-if="disableForm" justify="center" class="mt-4">
-    <n-button class="px-6" type="primary" @click="onSubmit">
-      Сохранить
-    </n-button>
-  </n-flex>
+    </NGi>
+    <NGi span="2">
+      <NCard title="Учетные записи">
+        <template #header-extra>
+          <NButton text>
+            <template #icon>
+              <IconSquareRoundedPlus />
+            </template>
+            Добавить
+          </NButton>
+        </template>
+        <NList hoverable>
+          <NScrollbar class="max-h-[340px]">
+            <NListItem>
+              <n-thing title="Корпоративная почта" content-style="margin-top: 10px;">
+                <template #header-extra>
+                  <NSpace>
+                    <NButton text>
+                      <template #icon>
+                        <NIcon :size="20" :component="IconExternalLink" />
+                      </template>
+                    </NButton>
+                    <NButton text>
+                      <template #icon>
+                        <NIcon :size="20" :component="IconEdit" />
+                      </template>
+                    </NButton>
+                    <NButton text type="error">
+                      <template #icon>
+                        <NIcon :size="20" :component="IconTrash" />
+                      </template>
+                    </NButton>
+                  </NSpace>
+                </template>
+                <template #action>
+                  <n-space size="small" style="margin-top: 4px">
+                    <n-tag :bordered="false" type="info" size="small" class="cursor-pointer">
+                      Логин
+                    </n-tag>
+                    <n-tag :bordered="false" type="info" size="small" class="cursor-pointer">
+                      Пароль
+                    </n-tag>
+                  </n-space>
+                </template>
+              </n-thing>
+            </NListItem>
+          </NScrollbar>
+        </NList>
+      </NCard>
+    </NGi>
+  </NGrid>
 </template>
