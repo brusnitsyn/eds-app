@@ -8,16 +8,19 @@ const defaultLangDate = dateRuRU
 <template>
   <Html lang="ru">
     <Body>
-      <naive-config :locale="defaultLang" :date-locale="defaultLangDate">
-        <n-notification-provider>
-          <n-message-provider>
+      <NaiveConfig :locale="defaultLang" :date-locale="defaultLangDate">
+        <NNotificationProvider>
+          <NMessageProvider placement="top">
+            <NLoadingBarProvider>
+              <NaiveLoadingBar navigation />
+            </NLoadingBarProvider>
             <NuxtLayout>
               <NuxtPage />
             </NuxtLayout>
             <naive-notification />
-          </n-message-provider>
-        </n-notification-provider>
-      </naive-config>
+          </NMessageProvider>
+        </NNotificationProvider>
+      </NaiveConfig>
     </Body>
   </Html>
 </template>
