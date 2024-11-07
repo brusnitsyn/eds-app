@@ -80,6 +80,19 @@ else if (!staff.value.cert.has_valid && !staff.value.cert.has_request_new) {
   hasAlerNoValid.value = true
 }
 
+const showStaffIntegrate = ref(false)
+
+async function removeIntegrate(staffId: number, integrateId: number) {
+  const { status } = await useAPI(`/api/staff/${staffId}/integrate/${integrateId}`, {
+    method: 'DELETE',
+  })
+
+  if (status.value === 'success') {
+    const sliceIntegrationId = staff.value.integrations.findIndex(item => item.id === integrateId)
+    staff.value.integrations.splice(sliceIntegrationId, 1)
+  }
+}
+
 definePageMeta({
   middleware: 'sanctum-auth'
 })
@@ -233,20 +246,20 @@ definePageMeta({
     <NGi span="2">
       <NCard title="Учетные записи">
         <template #header-extra>
-          <NButton text>
+          <NButton text @click="showStaffIntegrate = true">
             <template #icon>
               <IconSquareRoundedPlus />
             </template>
             Добавить
           </NButton>
         </template>
-        <NList hoverable>
-          <NScrollbar class="max-h-[340px]">
-            <NListItem>
-              <n-thing title="Корпоративная почта" content-style="margin-top: 10px;">
+        <NList v-if="staff.integrated && staff.integrated.length">
+          <NScrollbar class="max-h-[360px] pl-4 -mx-4">
+            <NListItem v-for="integrate in staff.integrations" :key="integrate.id">
+              <NThing :title="integrate.name" content-style="margin-top: 10px;">
                 <template #header-extra>
                   <NSpace>
-                    <NButton text>
+                    <NButton v-if="integrate.link" text tag="a" :href="integrate.link" target="_blank">
                       <template #icon>
                         <NIcon :size="20" :component="IconExternalLink" />
                       </template>
@@ -256,7 +269,7 @@ definePageMeta({
                         <NIcon :size="20" :component="IconEdit" />
                       </template>
                     </NButton>
-                    <NButton text type="error">
+                    <NButton text type="error" @click="removeIntegrate(staff.id, integrate.id)">
                       <template #icon>
                         <NIcon :size="20" :component="IconTrash" />
                       </template>
@@ -264,20 +277,29 @@ definePageMeta({
                   </NSpace>
                 </template>
                 <template #action>
-                  <n-space size="small" style="margin-top: 4px">
-                    <n-tag :bordered="false" type="info" size="small" class="cursor-pointer">
+                  <NSpace size="small">
+                    <NButton v-if="integrate.login" size="small" secondary>
                       Логин
-                    </n-tag>
-                    <n-tag :bordered="false" type="info" size="small" class="cursor-pointer">
+                    </NButton>
+                    <NButton v-if="integrate.password" size="small" secondary>
                       Пароль
-                    </n-tag>
-                  </n-space>
+                    </NButton>
+                  </NSpace>
                 </template>
-              </n-thing>
+              </NThing>
             </NListItem>
           </NScrollbar>
         </NList>
+        <NEmpty v-else description="Учетные записи не найдены" class="py-4 pb-8">
+          <template #extra>
+            <NButton secondary size="small" @click="showStaffIntegrate = true">
+              Добавить новую запись
+            </NButton>
+          </template>
+        </NEmpty>
       </NCard>
     </NGi>
   </NGrid>
+
+  <ModalsAddStaffIntegrate v-model:show="showStaffIntegrate" :staff-id="staff.id" />
 </template>
