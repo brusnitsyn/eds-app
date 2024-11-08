@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import {
-  IconChevronLeft,
+  IconChevronLeft, IconCopy,
   IconDownload,
   IconEdit,
   IconExternalLink,
@@ -9,6 +9,7 @@ import {
   IconUpload
 } from '@tabler/icons-vue'
 import { format, toDate } from 'date-fns'
+import {NIcon} from "naive-ui";
 
 const config = useRuntimeConfig()
 const message = useMessage()
@@ -80,7 +81,9 @@ else if (!staff.value.cert.has_valid && !staff.value.cert.has_request_new) {
   hasAlerNoValid.value = true
 }
 
-const showStaffIntegrate = ref(false)
+const showAddStaffIntegrate = ref(false)
+const showEditStaffIntegrate = ref(false)
+const showEdit = ref(false)
 
 async function removeIntegrate(staffId: number, integrateId: number) {
   const { status } = await useAPI(`/api/staff/${staffId}/integrate/${integrateId}`, {
@@ -93,6 +96,25 @@ async function removeIntegrate(staffId: number, integrateId: number) {
   }
 }
 
+const editIntegrate = ref(null)
+
+function handleEdit(integrate) {
+  editIntegrate.value = integrate
+  showEditStaffIntegrate.value = true
+}
+
+function updateIntegrate(value) {
+  const updatedIntegration = staff.value.integrations.find(item => item.id === value.id)
+  updatedIntegration.value = value
+}
+
+function copyIntegratedValue(value) {
+  navigator.clipboard.writeText(value)
+  message.success('Значение скопировано в буфер обмена', {
+    icon: () => h(NIcon, null, { default: () => h(IconCopy) })
+  })
+}
+
 definePageMeta({
   middleware: 'sanctum-auth'
 })
@@ -103,7 +125,7 @@ definePageMeta({
     <NGi span="3">
       <NSpace vertical class="max-w-3xl">
         <NCard class="relative">
-          <NButton class="absolute top-2 left-0 -translate-x-1/2" :style="{ border: '1px', borderColor: useThemeVars().value.borderColor, borderStyle: 'solid' }" :color="useThemeVars().value.cardColor" :text-color="useThemeVars().value.textColor3" circle>
+          <NButton class="absolute top-2 left-0 -translate-x-1/2" :style="{ border: '1px', borderColor: useThemeVars().value.borderColor, borderStyle: 'solid' }" :color="useThemeVars().value.cardColor" :text-color="useThemeVars().value.textColor3" circle @click="useRouter().back()">
             <template #icon>
               <NIcon :component="IconChevronLeft" />
             </template>
@@ -120,30 +142,22 @@ definePageMeta({
           </template>
         </NCard>
 
-        <n-alert v-if="hasAlerValid" title="Все хорошо" type="success">
-          Сертификат действителен
-        </n-alert>
-        <n-alert v-if="hasAlerNewRequest" title="Требуется внимание" type="warning">
-          Срок действия сертификата подходит к концу
-          Срок действия закрытого ключа подходит к концу
-        </n-alert>
-        <n-alert v-if="hasAlerNoValid" title="Все плохо" type="error">
-          Сертификат не действителен
-          Закрытый ключ не действителен
-        </n-alert>
+        <NAlert v-if="hasAlerValid" title="Сертификат действителен" type="success" />
+        <NAlert v-if="hasAlerNewRequest" title="Срок действия сертификата подходит к концу" type="warning" />
+        <NAlert v-if="hasAlerNoValid" title="Сертификат не действителен" type="error" />
 
         <NCard title="Общая информация">
-          <template #header-extra>
-            <NButton text>
-              <template #icon>
-                <IconEdit />
-              </template>
-              Изменить
-            </NButton>
-          </template>
+          <!--          <template #header-extra> -->
+          <!--            <NButton text @click="showEdit = true"> -->
+          <!--              <template #icon> -->
+          <!--                <IconEdit /> -->
+          <!--              </template> -->
+          <!--              Изменить -->
+          <!--            </NButton> -->
+          <!--          </template> -->
           <NList hoverable>
             <NListItem>
-              <template #suffix>
+              <template v-if="staff.inn" #suffix>
                 <AppCopyButton :value="staff.inn" />
               </template>
               <NGrid :cols="2">
@@ -152,7 +166,7 @@ definePageMeta({
               </NGrid>
             </NListItem>
             <NListItem>
-              <template #suffix>
+              <template v-if="staff.snils" #suffix>
                 <AppCopyButton :value="staff.snils" />
               </template>
               <NGrid :cols="2">
@@ -161,7 +175,7 @@ definePageMeta({
               </NGrid>
             </NListItem>
             <NListItem>
-              <template #suffix>
+              <template v-if="staff.job_title" #suffix>
                 <AppCopyButton :value="staff.job_title" />
               </template>
               <NGrid :cols="2">
@@ -170,7 +184,7 @@ definePageMeta({
               </NGrid>
             </NListItem>
             <NListItem>
-              <template #suffix>
+              <template v-if="staff.division" #suffix>
                 <AppCopyButton :value="staff.division" />
               </template>
               <NGrid :cols="2">
@@ -182,7 +196,7 @@ definePageMeta({
         </NCard>
 
         <NCard title="Сведения о сертификате">
-          <template #header-extra>
+<!--          <template #header-extra>
             <NSpace>
               <NButton text>
                 <template #icon>
@@ -197,7 +211,7 @@ definePageMeta({
                 Скачать
               </NButton>
             </NSpace>
-          </template>
+          </template>-->
           <NList hoverable>
             <NListItem>
               <template #suffix>
@@ -233,7 +247,7 @@ definePageMeta({
 
                   <NTag round :bordered="false" class="ml-4">
                     <div class="!text-sm">
-                      В следующем обновлении
+                      Совсем скоро
                     </div>
                   </NTag>
                 </NGi>
@@ -246,15 +260,15 @@ definePageMeta({
     <NGi span="2">
       <NCard title="Учетные записи">
         <template #header-extra>
-          <NButton text @click="showStaffIntegrate = true">
+          <NButton text @click="showAddStaffIntegrate = true">
             <template #icon>
               <IconSquareRoundedPlus />
             </template>
             Добавить
           </NButton>
         </template>
-        <NList v-if="staff.integrated && staff.integrated.length">
-          <NScrollbar class="max-h-[360px] pl-4 -mx-4">
+        <NList v-if="staff.integrations && staff.integrations.length">
+          <NScrollbar class="max-h-[360px] px-4">
             <NListItem v-for="integrate in staff.integrations" :key="integrate.id">
               <NThing :title="integrate.name" content-style="margin-top: 10px;">
                 <template #header-extra>
@@ -264,7 +278,7 @@ definePageMeta({
                         <NIcon :size="20" :component="IconExternalLink" />
                       </template>
                     </NButton>
-                    <NButton text>
+                    <NButton text @click="handleEdit(integrate)">
                       <template #icon>
                         <NIcon :size="20" :component="IconEdit" />
                       </template>
@@ -278,10 +292,10 @@ definePageMeta({
                 </template>
                 <template #action>
                   <NSpace size="small">
-                    <NButton v-if="integrate.login" size="small" secondary>
+                    <NButton v-if="integrate.login" size="small" secondary @click="copyIntegratedValue(integrate.login)">
                       Логин
                     </NButton>
-                    <NButton v-if="integrate.password" size="small" secondary>
+                    <NButton v-if="integrate.password" size="small" secondary @click="copyIntegratedValue(integrate.password)">
                       Пароль
                     </NButton>
                   </NSpace>
@@ -292,7 +306,7 @@ definePageMeta({
         </NList>
         <NEmpty v-else description="Учетные записи не найдены" class="py-4 pb-8">
           <template #extra>
-            <NButton secondary size="small" @click="showStaffIntegrate = true">
+            <NButton secondary size="small" @click="showAddStaffIntegrate = true">
               Добавить новую запись
             </NButton>
           </template>
@@ -301,5 +315,7 @@ definePageMeta({
     </NGi>
   </NGrid>
 
-  <ModalsAddStaffIntegrate v-model:show="showStaffIntegrate" :staff-id="staff.id" />
+  <ModalsAddStaffIntegrate v-model:show="showAddStaffIntegrate" :staff-id="staff.id" @created-integrate="(value) => staff.integrations.push(value)" />
+  <ModalsEditStaffIntegrate v-model:show="showEditStaffIntegrate" v-model:model="editIntegrate" :staff-id="staff.id" @updated-integrate="(value) => updateIntegrate(value)" />
+  <ModalsEditStaff v-model:show="showEdit" v-model:model="staff" />
 </template>

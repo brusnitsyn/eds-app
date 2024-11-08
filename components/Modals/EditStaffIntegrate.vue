@@ -1,15 +1,10 @@
 <script setup lang="ts">
 const props = defineProps<{ staffId: number }>()
-const emits = defineEmits('createdIntegrate')
+const emits = defineEmits('updatedIntegrate')
 
 const show = defineModel('show')
 
-const model = ref({
-  name: '',
-  login: '',
-  password: '',
-  link: ''
-})
+const model = defineModel('model')
 
 const { pending, rules, reset, onSubmit, edited, apiErrors, formRef } = useNaiveForm(model)
 
@@ -41,13 +36,13 @@ rules.value = {
 function handleSubmit() {
   formRef.value?.validate(async (errors) => {
     if (!errors) {
-      const { data, status } = await useAPI(`/api/staff/${props.staffId}/integrate`, {
-        method: 'POST',
+      const { data, status } = await useAPI(`/api/staff/${props.staffId}/integrate/${model.value.id}`, {
+        method: 'PUT',
         body: model.value,
       })
 
       if (status.value === 'success') {
-        emits('createdIntegrate', data.value)
+        emits('updatedIntegrate', data.value)
         show.value = false
       }
     }
@@ -56,12 +51,11 @@ function handleSubmit() {
 
 function handleClose() {
   show.value = false
-  reset()
 }
 </script>
 
 <template>
-  <NModal v-model:show="show" :mask-closable="false" preset="card" class="w-1/3" title="Добавление учетной записи">
+  <NModal v-model:show="show" :mask-closable="false" preset="card" class="w-1/3" title="Редактирование учетной записи">
     <NForm ref="formRef" :rules="rules" :model="model" @submit.prevent="() => onSubmit(handleSubmit)">
       <NGrid cols="2" x-gap="8">
         <NFormItemGi span="2" label="Наименование" path="name">
@@ -98,7 +92,7 @@ function handleClose() {
           Отмена
         </NButton>
         <NButton type="primary" :loading="pending" :disabled="pending || !edited" attr-type="submit" @click="handleSubmit">
-          Добавить
+          Обновить
         </NButton>
       </NFlex>
     </template>
