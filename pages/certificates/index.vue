@@ -136,7 +136,7 @@ const columns = ref([
       tooltip: true
     }
   },
-  /* {
+  {
     title: '',
     key: 'actions',
     width: 150,
@@ -151,12 +151,11 @@ const columns = ref([
           }
         },
         {
-          default: () => 'Сертификат',
-          icon: () => h(IconLink)
+          default: () => 'Сертификат'
         }
       )
     }
-  } */
+  }
 ])
 
 function handleSorterChange(sorter) {
