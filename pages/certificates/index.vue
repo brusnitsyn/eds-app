@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { NButton, NText } from 'naive-ui'
-import { IconFileExcel, IconFileZip, IconSearch, IconSquareRoundedPlus } from '@tabler/icons-vue'
+import { NButton, NDropdown, NFlex, NIcon, NText } from 'naive-ui'
+import { IconDots, IconFileExcel, IconFileZip, IconSearch, IconSquareRoundedPlus } from '@tabler/icons-vue'
 import { format, toDate } from 'date-fns'
 import { definePageMeta } from '#imports'
 import { AppLink } from '#components'
@@ -77,6 +77,25 @@ interface Person {
   cert_valid_to: number
 }
 
+const rowOptions = ref([
+  {
+    label: 'Удалить',
+    key: 'delete',
+    onClick: async (row) => {
+      const { status } = await useAPI(`/api/staff/${row.id}`, {
+        method: 'DELETE',
+      })
+
+      // eslint-disable-next-line style/max-statements-per-line
+      if (status.value === 'success') { await refresh() }
+    }
+  }
+])
+
+// function handleSelectedRowOption(key, option, row) {
+//   console.log(row)
+// }
+
 const columns = ref([
   {
     type: 'selection',
@@ -139,19 +158,26 @@ const columns = ref([
   {
     title: '',
     key: 'actions',
-    width: 150,
+    width: 60,
     render(row) {
       return h(
-        NButton,
+        NFlex,
         {
-          tertiary: true,
-          size: 'small',
-          onClick: async () => {
-            await navigateTo({ name: 'certificates-id', params: { id: row.id } })
-          }
+
         },
         {
-          default: () => 'Сертификат'
+          default: () => h(
+            NDropdown,
+            {
+              trigger: 'click',
+              placement: 'bottom-end',
+              options: rowOptions.value,
+              onSelect: (key, option) => option.onClick(row)
+            },
+            {
+              default: () => h(NButton, { text: true, class: 'text-xl' }, { default: () => h(NIcon, null, { default: () => h(IconDots) }) })
+            }
+          )
         }
       )
     }
@@ -284,7 +310,7 @@ definePageMeta({
   <div>
     <div class="flex flex-row justify-between items-center pb-5">
       <h1 class="text-2xl font-bold">
-        Сертификаты
+        Персонал
       </h1>
       <NSpace>
         <NButton secondary :disabled="status === 'pending'" @click="downloadExcel">
@@ -321,7 +347,7 @@ definePageMeta({
         <n-input-group>
           <n-select v-model:value="selectedSearchStaffOption" :disabled="status === 'pending'" size="large" :style="{ width: '33%' }" :options="selectSearchStaffOptions" placeholder="Искать по" />
           <n-input v-model:value="searchStaffValue" :disabled="status === 'pending'" size="large" placeholder="Значение поиска" @keydown.enter.prevent="searchStaff" />
-          <NButton :disabled="status === 'pending'" size="large" @click="searchStaff">
+          <NButton :disabled="status === 'pending'" size="large" secondary @click="searchStaff">
             <template #icon>
               <IconSearch />
             </template>
