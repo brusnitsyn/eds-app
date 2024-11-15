@@ -1,15 +1,18 @@
 <script lang="ts" setup>
 import {
-  IconChevronLeft, IconCopy,
-  IconDownload,
+  IconAlertCircleFilled,
+  IconChevronLeft,
+  IconCopy,
+  IconDatabaseImport,
   IconEdit,
   IconExternalLink,
+  IconFileZip,
+  IconProgressCheck,
   IconSquareRoundedPlus,
-  IconTrash,
-  IconUpload
+  IconTrash
 } from '@tabler/icons-vue'
 import { format, toDate } from 'date-fns'
-import {NIcon} from "naive-ui";
+import { NIcon } from 'naive-ui'
 
 const config = useRuntimeConfig()
 const message = useMessage()
@@ -19,7 +22,7 @@ const id = Number.parseInt(useRoute().params.id as string)
 
 // const userModel = await $client.getUser.useQuery({ id })
 
-const { data: staff } = await useAsyncData(`staff-id`, () => $api(`/api/staff/${id}`))
+const { data: staff, refresh } = await useAsyncData(`staff-id`, () => $api(`/api/staff/${id}`))
 
 const { data: divisions } = await useAsyncData('divisions', () => $api(`/api/division`))
 
@@ -80,6 +83,9 @@ if (staff.value.cert.has_valid && !staff.value.cert.has_request_new) {
 else if (!staff.value.cert.has_valid && !staff.value.cert.has_request_new) {
   hasAlerNoValid.value = true
 }
+else if (staff.value.cert.has_valid && staff.value.cert.has_request_new) {
+  hasAlerNewRequest.value = true
+}
 
 const showAddStaffIntegrate = ref(false)
 const showEditStaffIntegrate = ref(false)
@@ -94,6 +100,11 @@ async function removeIntegrate(staffId: number, integrateId: number) {
     const sliceIntegrationId = staff.value.integrations.findIndex(item => item.id === integrateId)
     staff.value.integrations.splice(sliceIntegrationId, 1)
   }
+}
+
+async function installCert() {
+  const { status } = await useAPI(`/api/staff/${staff.value.id}/mis/set`)
+  if (status.value === 'success') { await refresh() }
 }
 
 const editIntegrate = ref(null)
@@ -115,6 +126,24 @@ function copyIntegratedValue(value) {
   })
 }
 
+async function syncMis() {
+  const { status } = await useAPI(`/api/staff/${staff.value.id}/sync`)
+}
+
+async function downloadCert() {
+  const { data: downloadData, status: downloadStatus } = await useAPI('/api/certificate/download', {
+    method: 'POST',
+    body: {
+      staff_ids: [staff.value.id]
+    }
+  })
+
+  if (downloadStatus.value === 'success') {
+    const file = window.URL.createObjectURL(downloadData.value)
+    window.location.assign(file)
+  }
+}
+
 definePageMeta({
   middleware: 'sanctum-auth'
 })
@@ -125,6 +154,14 @@ definePageMeta({
     <NGi span="3">
       <NSpace vertical class="max-w-3xl">
         <NCard class="relative">
+          <NFlex class="absolute top-4 right-4">
+            <NTag v-if="staff.mis_user_id != null" type="info" round>
+              ТМ:МИС {{ format(new Date(staff.mis_sync_at), 'dd.MM.yyyy') }} в {{ format(new Date(staff.mis_sync_at), 'HH:mm') }}
+              <template #icon>
+                <NIcon :component="IconProgressCheck" :size="20" />
+              </template>
+            </NTag>
+          </NFlex>
           <NButton class="absolute top-2 left-0 -translate-x-1/2" :style="{ border: '1px', borderColor: useThemeVars().value.borderColor, borderStyle: 'solid' }" :color="useThemeVars().value.cardColor" :text-color="useThemeVars().value.textColor3" circle @click="useRouter().back()">
             <template #icon>
               <NIcon :component="IconChevronLeft" />
@@ -134,11 +171,15 @@ definePageMeta({
             {{ staff.last_name[0] }}{{ staff.first_name[0] }}
           </NAvatar>
           <template #action>
-            <NSpace align="center" :size="50">
+            <NFlex justify="space-between" align="center">
               <NText class="text-lg font-bold">
                 {{ staff.full_name }}
               </NText>
-            </NSpace>
+
+              <NText v-if="staff.mis_user_id">
+                #{{ staff.mis_user_id }}
+              </NText>
+            </NFlex>
           </template>
         </NCard>
 
@@ -196,32 +237,42 @@ definePageMeta({
         </NCard>
 
         <NCard title="Сведения о сертификате">
-<!--          <template #header-extra>
+          <template #header-extra>
             <NSpace>
-              <NButton text>
+              <NButton text @click="downloadCert">
                 <template #icon>
-                  <IconUpload />
-                </template>
-                Установить
-              </NButton>
-              <NButton text>
-                <template #icon>
-                  <IconDownload />
+                  <IconFileZip />
                 </template>
                 Скачать
               </NButton>
+              <NButton v-if="staff.cert.has_mis_identical === false && staff.mis_user_id != null" text @click="installCert">
+                <template #icon>
+                  <IconDatabaseImport />
+                </template>
+                Установить в ТМ:МИС
+              </NButton>
             </NSpace>
-          </template>-->
+          </template>
           <NList hoverable>
             <NListItem>
               <template #suffix>
                 <AppCopyButton :value="staff.cert.serial_number" />
               </template>
-              <NGrid :cols="2">
+              <NGrid :cols="2" class="flex items-center">
                 <NGi>
                   <NText class="font-bold">
                     {{ staff.cert.serial_number }}
                   </NText>
+                </NGi>
+                <NGi v-if="staff.cert.has_mis_identical === false && staff.mis_user_id != null">
+                  <NTag type="warning" round class="-ml-6">
+                    <div class="!text-sm">
+                      Сертификат отличается
+                    </div>
+                    <template #icon>
+                      <NIcon :component="IconAlertCircleFilled" :size="20" />
+                    </template>
+                  </NTag>
                 </NGi>
               </NGrid>
             </NListItem>

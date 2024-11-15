@@ -43,13 +43,32 @@ export default defineNuxtConfig({
     },
   },
 
-  modules: [
-    '@nuxtjs/tailwindcss',
-    '@bg-dev/nuxt-naiveui',
-  ],
+  modules: ['@nuxtjs/tailwindcss', '@bg-dev/nuxt-naiveui', '@nuxt/fonts'],
 
   devtools: {
     enabled: true
+  },
+
+  naiveui: {
+    themeConfig: {
+      fontFamily: 'Golos Text'
+    }
+  },
+
+  fonts: {
+    families: [
+      { name: 'Golos Text', provider: 'google', global: true }
+    ],
+    default: {
+      weights: [500],
+      styles: ['normal'],
+      subsets: [
+        'cyrillic-ext',
+        'cyrillic',
+        'latin-ext',
+        'latin'
+      ]
+    }
   },
 
   build: {

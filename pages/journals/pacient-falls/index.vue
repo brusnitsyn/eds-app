@@ -127,7 +127,7 @@ function openEditPage(row) {
   return {
     style: 'cursor: pointer;',
     onClick: async () => {
-      await navigateTo({ name: 'certificates-id', params: { id: row.id } })
+      await navigateTo({ name: 'persons-id', params: { id: row.id } })
     }
   }
 }

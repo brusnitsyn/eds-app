@@ -5,7 +5,7 @@ import {
   IconAffiliate,
   IconBook,
   IconBriefcase,
-  IconCertificate,
+  IconUsers,
   IconChevronDown,
   IconLogout,
   IconNotes,
@@ -15,6 +15,13 @@ import { NuxtLink } from '#components'
 
 const { user } = useSanctumAuth()
 const route = useRoute()
+
+const activeRoute = computed(() => {
+  if (route.path.indexOf('/', 1) != -1)
+    return route.path.substring(route.path.indexOf('/'), route.path.indexOf('/', 1))
+  else
+    return route.path
+})
 
 function renderIcon(icon: Component) {
   return h(NIcon, null, { default: () => h(icon) })
@@ -48,11 +55,11 @@ function expandIcon() {
 
 const menuOptions = [
   {
-    label: 'ЭЦП',
-    key: '/certificates',
-    icon: IconCertificate,
+    label: 'Персонал',
+    key: '/persons',
+    icon: IconUsers,
     to: {
-      name: 'certificates'
+      name: 'persons'
     }
   },
   // {
@@ -199,7 +206,7 @@ const userOptions = [
               :render-label="renderMenuLabel"
               :render-icon="renderMenuIcon"
               :expand-icon="expandIcon"
-              :default-value="route.path"
+              :default-value="activeRoute"
             />
           </NSpace>
           <NSpace vertical class="p-8">

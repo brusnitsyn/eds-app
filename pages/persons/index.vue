@@ -2,8 +2,15 @@
 import { NButton, NDropdown, NFlex, NIcon, NText } from 'naive-ui'
 import { IconDots, IconFileExcel, IconFileZip, IconSearch, IconSquareRoundedPlus } from '@tabler/icons-vue'
 import { format, toDate } from 'date-fns'
+import { changeColor } from 'seemly'
 import { definePageMeta } from '#imports'
 import { AppLink } from '#components'
+
+// function stylingRow(row: RowData) {
+//   if (row.certificate.has_valid === false) { return 'has-no-valid' }
+//   if (row.certificate.has_request_new === true) { return 'has-request' }
+//   return 'has-valid'
+// }
 
 const staffPage = computed({
   get() {
@@ -89,7 +96,14 @@ const rowOptions = ref([
       // eslint-disable-next-line style/max-statements-per-line
       if (status.value === 'success') { await refresh() }
     }
-  }
+  },
+  {
+    label: 'Скачать',
+    key: 'download',
+    onClick: async (row) => {
+      await downloadCert([row.id])
+    }
+  },
 ])
 
 // function handleSelectedRowOption(key, option, row) {
@@ -115,7 +129,7 @@ const columns = ref([
       return h(
         AppLink,
         {
-          to: { name: 'certificates-id', params: { id: row.id } },
+          to: { name: 'persons-id', params: { id: row.id } },
         },
         {
           default: () => row.full_name,
@@ -203,7 +217,7 @@ function openEditPage(row) {
   return {
     style: 'cursor: pointer;',
     onClick: async () => {
-      await navigateTo({ name: 'certificates-id', params: { id: row.id } })
+      await navigateTo({ name: 'persons-id', params: { id: row.id } })
     }
   }
 }
@@ -247,10 +261,10 @@ async function searchStaff() {
   await refresh()
 }
 
-function stylingRow(row: RowData) {
-  if (row.has_valid === false) { return 'has-no-valid' }
-  if (row.has_request_new === true) { return 'has-request' }
-  return ''
+function rowProps(row: RowData) {
+  if (row.certificate.has_valid === false) { return { style: `background-color: ${changeColor(useThemeVars().value.errorColor, { alpha: 0.35 })} !important;` } }
+  if (row.certificate.has_request_new === true) { return { style: `background-color: ${changeColor(useThemeVars().value.warningColor, { alpha: 0.35 })} !important;` } }
+  return { }
 }
 
 function rowKey(row) {
@@ -263,14 +277,14 @@ function handleCheck(rowKeys) {
   checkedRows.value = rowKeys
 }
 
-async function downloadCert() {
-  if (checkedRows.value.length) {
+async function downloadCert(ids: []) {
+  if (checkedRows.value.length || ids.length) {
     status.value = 'pending'
 
     const { data: downloadData, status: downloadStatus } = await useAPI('/api/certificate/download', {
       method: 'POST',
       body: {
-        staff_ids: checkedRows.value
+        staff_ids: checkedRows.value.length ? checkedRows.value : ids
       }
     })
 
@@ -334,7 +348,7 @@ definePageMeta({
           <n-radio-group v-model:value="validType" :disabled="status === 'pending'">
             <n-radio-button label="Все" :value="null" />
             <n-radio-button label="Требующие перевыпуск" value="new-request" />
-            <n-radio-button label="Истекшие" value="no-valid" />
+            <n-radio-button label="Недействительные" value="no-valid" />
           </n-radio-group>
 
           <NButton v-if="checkedRows.length" secondary :disabled="status === 'pending'" @click="downloadCert">
@@ -359,9 +373,11 @@ definePageMeta({
         remote
         :pagination="pagination"
         :loading="status === 'pending'"
-        :row-class-name="stylingRow"
+        :row-props="rowProps"
         :row-key="rowKey"
-        :max-height="600"
+        :min-height="650"
+        :max-height="650"
+
         :columns="columns" :data="(data as responseData).data.persons"
         :bordered="true" @update:sorter="handleSorterChange"
         @update:checked-row-keys="handleCheck"
@@ -372,10 +388,7 @@ definePageMeta({
 </template>
 
 <style scoped>
-:deep(.has-request td) {
-  @apply !bg-[#FDA52C]/40;
-}
-:deep(.has-no-valid td) {
-  @apply !bg-[#FF0000]/40;
+:deep(.n-data-table-tr td) {
+  @apply !bg-transparent;
 }
 </style>
