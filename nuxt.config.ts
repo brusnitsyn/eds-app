@@ -18,7 +18,7 @@ export default defineNuxtConfig({
         },
         redirect: {
           keepRequestedRoute: false,
-          onLogin: '/certificates',
+          onLogin: '/',
           onLogout: '/',
           onAuthOnly: '/auth',
           onGuestOnly: '/',
@@ -55,9 +55,14 @@ export default defineNuxtConfig({
     }
   },
 
+  routeRules: {
+    '/': { redirect: '/persons' }
+  },
+
   fonts: {
+    provider: 'local',
     families: [
-      { name: 'Golos Text', provider: 'google', global: true }
+      { name: 'Golos Text', global: true }
     ],
     default: {
       weights: [500],

@@ -23,22 +23,17 @@ const rules = {
 }
 
 const { login, refreshUser } = useSanctumAuth()
-const { redirect } = useSanctumConfig()
+
 async function validateForm(e) {
   e.preventDefault()
   formRef.value?.validate(
     async (errors: Array<FormValidationError> | undefined) => {
       if (!errors) {
         loading.value = true
-        const result = await login({
+        await login({
           login: model.value.login,
           password: model.value.password
-        })
-
-        if (result) {
-          await navigateTo(redirect.onLogin, { replace: true })
-          loading.value = false
-        }
+        }).finally(() => loading.value = false)
       }
       else {
         /// TODO: add message send

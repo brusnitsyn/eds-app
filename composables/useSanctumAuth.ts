@@ -1,11 +1,13 @@
 import { useSanctumConfig } from './useSanctumConfig'
+import {navigateTo} from "#app";
 
 export function useSanctumAuth() {
   const user = useState<T | null>('user', () => null)
   const cookieToken = useCookie('token')
   const isAuthenticated = computed(() => cookieToken.value)
+  const nuxtApp = useNuxtApp()
   const config = useSanctumConfig()
-  // const { client } = useSanctumFetch()
+  const { redirect } = useSanctumConfig()
 
   async function refreshUser() {
     const { data } = await useAPI(config.endpoints.user)
@@ -19,12 +21,13 @@ export function useSanctumAuth() {
     })
 
     if (data.value.token) {
-      cookieToken.value = data.value.token
-      if (cookieToken.value) await refreshUser()
-      return true
-    }
+      useCookie('token').value = data.value.token
+      refreshCookie('token')
 
-    return false
+      await refreshUser()
+
+      nuxtApp.runWithContext(() => navigateTo(redirect.onLogin, { replace: true }))
+    }
   }
 
   return {

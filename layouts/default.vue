@@ -5,10 +5,10 @@ import {
   IconAffiliate,
   IconBook,
   IconBriefcase,
-  IconUsers,
   IconChevronDown,
   IconLogout,
   IconNotes,
+  IconUsers,
   IconUsersGroup
 } from '@tabler/icons-vue'
 import { NuxtLink } from '#components'
@@ -17,10 +17,10 @@ const { user } = useSanctumAuth()
 const route = useRoute()
 
 const activeRoute = computed(() => {
-  if (route.path.indexOf('/', 1) != -1)
-    return route.path.substring(route.path.indexOf('/'), route.path.indexOf('/', 1))
-  else
-    return route.path
+  console.log(useRoute().path.includes('/', 2))
+  console.log(useRoute().path)
+  if (useRoute().path.includes('/', 2)) { return useRoute().path.substring(useRoute().path.indexOf('/'), useRoute().path.indexOf('/', 1)) }
+  return useRoute().path
 })
 
 function renderIcon(icon: Component) {
@@ -206,7 +206,7 @@ const userOptions = [
               :render-label="renderMenuLabel"
               :render-icon="renderMenuIcon"
               :expand-icon="expandIcon"
-              :default-value="activeRoute"
+              :value="activeRoute"
             />
           </NSpace>
           <NSpace vertical class="p-8">
