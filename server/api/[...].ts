@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
   switch (hostname) {
     case 'localhost':
     case '127.0.0.1':
-      proxyUrl = 'http://46.16.9.130:49022/api'
+      proxyUrl = 'http://localhost:81/api'
       break
     case '10.32.0.204':
       proxyUrl = 'http://10.32.0.204:81/api'
