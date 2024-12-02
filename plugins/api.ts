@@ -5,7 +5,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     onRequest({ request, options, error }) {
 
       if (useCookie('token').value) {
-        options.mode = options.mode ?? 'cors'
+        options.mode = options.mode ?? 'same-origin'
         const headers = options.headers ||= {}
         if (Array.isArray(headers)) {
           headers.push(['Authorization', `Bearer ${useCookie('token').value}`])
