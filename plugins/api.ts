@@ -1,7 +1,7 @@
 export default defineNuxtPlugin((nuxtApp) => {
   const config = useRuntimeConfig()
   const api = $fetch.create({
-    baseURL: config.public.apiUrl ?? 'http://127.0.0.1:8000/api',
+    // baseURL: config.public.apiUrl ?? 'http://127.0.0.1:8000/api',
     onRequest({ request, options, error }) {
 
       if (useCookie('token').value) {
