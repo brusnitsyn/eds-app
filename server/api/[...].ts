@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
   //     break
   // }
 
-  console.log('hostname', hostname)
+  // console.log('hostname', hostname)
 
   // check the path
   const path = event.path.replace(/^\/api\//, '') // /api/users -> users
