@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
       proxyUrl = 'http://46.16.9.130:49022/api'
       break
     case '10.32.0.204':
-      proxyUrl = 'http://10.32.0.204:82/api'
+      proxyUrl = 'http://10.32.0.204:81/api'
       break
     case '46.16.9.130':
       proxyUrl = 'http://46.16.9.130:49022/api'
