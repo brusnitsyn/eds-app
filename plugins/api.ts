@@ -24,6 +24,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     async onResponseError({ response }) {
       if (response.status === 401) {
         useCookie('token').value = null
+        refreshCookie('token')
         await nuxtApp.runWithContext(() => navigateTo('/auth'))
       }
     }
